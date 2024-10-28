@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Login";
+}
+
+@model Group9_iCareApp.Models.iCAREUser
+
+<div class="text-center">
+    <h1 class="display-4">Login</h1>
+
+</div>
+    <form asp-action="LoginForm" asp-controller="Home">
+        <label class="mt-4">Username</label>
+        <input class="form-control mt-4" type="text" placeholder="Enter id" asp-for="Username" />
+        <label class="mt-4">Password</label>
+        <input class="form-control mt-4" type="text" placeholder="We won't look!" asp-for="Password" />
+
+        <button type="submit" class="btn btn-primary mt-4">Login</button>
+    </form>
