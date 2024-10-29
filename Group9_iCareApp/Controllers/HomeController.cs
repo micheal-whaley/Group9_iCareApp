@@ -7,11 +7,12 @@ namespace Group9_iCareApp.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-       // private readonly UserDBContext _usercontext;
+        private readonly iCAREDBContext _usercontext;
 
-        public HomeController(ILogger<HomeController> logger)
+        public HomeController(ILogger<HomeController> logger, iCAREDBContext usercontext)
         {
             _logger = logger;
+            _usercontext = usercontext;
         }
 
         public IActionResult Index()
@@ -37,13 +38,13 @@ namespace Group9_iCareApp.Controllers
         {
             if (model.Id == null) // doesnt exist yet
             {
-               // _context.Expenses.Add(model);
+                _usercontext.iCAREUsers.Add(model);
             }
             else
             {
                // _context.Expenses.Update(model);
             }
-           // _context.SaveChanges();
+            _usercontext.SaveChanges();
 
             return RedirectToAction("Index");
         }

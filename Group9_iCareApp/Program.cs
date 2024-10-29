@@ -1,3 +1,6 @@
+using Group9_iCareApp.Models;
+using Microsoft.EntityFrameworkCore;
+
 namespace Group9_iCareApp
 {
     public class Program
@@ -8,6 +11,9 @@ namespace Group9_iCareApp
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
+            //CHANGE NAME OF SERVER TO YOUR SERVER NAME
+            builder.Services.AddDbContext<iCAREDBContext>(option => option.UseSqlServer("Server=DESKTOP-OUAPKF0\\MSSQLSERVER01;Database=iCARE;Trusted_Connection=True;"));
 
             var app = builder.Build();
 

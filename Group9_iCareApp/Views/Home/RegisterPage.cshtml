@@ -10,10 +10,11 @@
 </div>
 
     <form asp-action="LoginForm" asp-controller="Home">
+    <input hidden class="form-control" type="number" placeholder="0" asp-for="Id" />
         <label class="mt-4">Username</label>
-        <input class="form-control mt-4" type="text" placeholder="Enter id" asp-for="Id" />
+        <input class="form-control mt-4" type="text" placeholder="Enter your name" asp-for="Name" />
         <label class="mt-4">Password</label>
-        <input class="form-control mt-4" type="password" placeholder="We won't look!" asp-for="UserPassword" />
+        <input class="form-control mt-4" type="password" placeholder="We won't look!" asp-for="Password" />
 
         <button type="submit" class="btn btn-primary mt-4">Sign up</button>
     </form>

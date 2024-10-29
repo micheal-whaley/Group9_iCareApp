@@ -1,13 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Group9_iCareApp.Models;
 
 public partial class iCAREUser
 {
-    public string Id { get; set; } = null!;
+    public int Id { get; set; }
 
     public string? Name { get; set; }
+
+    [Required]
+    public string? Password { get; set; }
 
     public virtual iCAREAdmin? iCAREAdmin { get; set; }
 
