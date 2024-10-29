@@ -35,7 +35,7 @@ namespace Group9_iCareApp.Controllers
 
         public IActionResult LoginForm(iCAREUser model)
         {
-            if (model.Id == 0) // doesnt exist yet
+            if (model.Id == null) // doesnt exist yet
             {
                // _context.Expenses.Add(model);
             }
