@@ -38,8 +38,8 @@ namespace Group9_iCareApp.Controllers{
                     assignedMessages.Add($"Patient with ID {patientId} not found.");
                     continue;
                 }
-                string message = patient.AssignToNurse(workerId); // Assuming this method exists and returns a message
-                assignedMessages.Add(message);
+                //string message = patient.AssignToNurse(workerId); // Assuming this method exists and returns a message
+               // assignedMessages.Add(message);
             }
             return Json(assignedMessages); // Return messages as JSON
         }
