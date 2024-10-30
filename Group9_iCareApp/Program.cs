@@ -13,7 +13,7 @@ namespace Group9_iCareApp
             builder.Services.AddControllersWithViews();
 
             //CHANGE NAME OF SERVER TO YOUR SERVER NAME
-            builder.Services.AddDbContext<iCAREDBContext>(option => option.UseSqlServer("Server=DESKTOP-OUAPKF0\\MSSQLSERVER01;Database=iCARE;Trusted_Connection=True;"));
+            builder.Services.AddDbContext<iCAREDBContext>(option => option.UseSqlServer("Server=KHURAMACER\\CS_4320_SERVER;Database=Group9_iCareDB;Trusted_Connection=True;"));
 
             var app = builder.Build();
 
