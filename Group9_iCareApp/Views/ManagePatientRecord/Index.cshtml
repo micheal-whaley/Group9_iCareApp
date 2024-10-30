@@ -7,12 +7,12 @@
 @if (patient != null)
 {
 
-    <h2>Update Record for @patient.Name</h2>
+    <h2>Update Record for @patient.Fname</h2>
 
 
     <form asp-action="Edit" asp-controller="ManagePatientRecord" asp-route-id="@patient.Id">
         <label class="mt-4">Name</label>
-        <input class="form-control mt-4" type="text" value="@patient.Name" asp-for="Name" />
+        <input class="form-control mt-4" type="text" value="@patient.Fname" asp-for="Fname" />
         <label class="mt-4">Address</label>
         <input class="form-control mt-4" type="text" value="@patient.Address" asp-for="Address" />
         <label class="mt-4">Date of Birth</label>
