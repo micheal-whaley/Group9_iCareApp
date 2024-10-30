@@ -185,8 +185,7 @@ public partial class iCAREDBContext : IdentityDbContext<iCAREUser>
                 .HasMaxLength(255)
                 .IsUnicode(false);
             entity.Property(e => e.BedId)
-                .HasMaxLength(100)
-                .IsUnicode(false)
+                //.ValueGeneratedNever()
                 .HasColumnName("BedID");
             entity.Property(e => e.BloodGroup)
                 .HasMaxLength(10)
