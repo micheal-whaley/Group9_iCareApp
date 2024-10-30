@@ -5,7 +5,7 @@ namespace Group9_iCareApp.Models;
 
 public partial class UserRole
 {
-    public string Id { get; set; } = null!;
+    public string ID { get; set; } = null!; //either doctor or nurse//
 
-    public string? RoleName { get; set; }
+    public virtual ICollection<iCAREWorker> ICareworkers { get; set; } = new List<iCAREWorker>();
 }

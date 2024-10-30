@@ -28,8 +28,6 @@ public partial class iCAREDBContext : DbContext
 
     public virtual DbSet<TreatmentRecord> TreatmentRecords { get; set; }
 
-    public virtual DbSet<UserPassword> UserPasswords { get; set; }
-
     public virtual DbSet<UserRole> UserRoles { get; set; }
 
     public iCAREDBContext(DbContextOptions<iCAREDBContext> options)
@@ -49,7 +47,7 @@ public partial class iCAREDBContext : DbContext
             entity.HasKey(e => e.DocId).HasName("PK__Document__3EF1888DDD7318E2");
 
             entity.Property(e => e.DocId)
-                .HasMaxLength(50)
+                .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("DocID");
             entity.Property(e => e.DateOfCreation).HasColumnType("datetime");
@@ -64,7 +62,10 @@ public partial class iCAREDBContext : DbContext
 
             entity.ToTable("DrugsDictionary");
 
-            entity.Property(e => e.Id).HasColumnName("ID");
+            entity.Property(e => e.Id)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("ID");
             entity.Property(e => e.Description).IsUnicode(false);
             entity.Property(e => e.Name).IsUnicode(false);
         });
@@ -74,7 +75,7 @@ public partial class iCAREDBContext : DbContext
             entity.HasKey(e => e.Id).HasName("PK__GeoCodes__3214EC27C87E4192");
 
             entity.Property(e => e.Id)
-                .HasMaxLength(50)
+                .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("ID");
             entity.Property(e => e.Description).IsUnicode(false);
@@ -87,12 +88,9 @@ public partial class iCAREDBContext : DbContext
         //    entity.ToTable("iCAREAdmin");
 
         //    entity.Property(e => e.Id)
-        //        .HasMaxLength(50)
+        //        .HasMaxLength(100)
         //        .IsUnicode(false)
         //        .HasColumnName("ID");
-        //    entity.Property(e => e.AdminEmail)
-        //        .HasMaxLength(100)
-        //        .IsUnicode(false);
 
         //    entity.HasOne(d => d.IdNavigation).WithOne(p => p.iCAREAdmin)
         //        .HasForeignKey<iCAREAdmin>(d => d.Id)
@@ -107,10 +105,13 @@ public partial class iCAREDBContext : DbContext
             entity.ToTable("iCAREUser");
 
             entity.Property(e => e.Id)
-                .HasMaxLength(50)
+                .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("ID");
             entity.Property(e => e.Name)
+                .HasMaxLength(100)
+                .IsUnicode(false);
+            entity.Property(e => e.Password)
                 .HasMaxLength(100)
                 .IsUnicode(false);
         });
@@ -122,17 +123,22 @@ public partial class iCAREDBContext : DbContext
         //    entity.ToTable("iCAREWorker");
 
         //    entity.Property(e => e.Id)
-        //        .HasMaxLength(50)
+        //        .HasMaxLength(100)
         //        .IsUnicode(false)
         //        .HasColumnName("ID");
         //    entity.Property(e => e.Profession)
-        //        .HasMaxLength(100)
+        //        .HasMaxLength(10)
         //        .IsUnicode(false);
 
         //    entity.HasOne(d => d.IdNavigation).WithOne(p => p.iCAREWorker)
         //        .HasForeignKey<iCAREWorker>(d => d.Id)
         //        .OnDelete(DeleteBehavior.ClientSetNull)
         //        .HasConstraintName("FK__iCAREWorker__ID__398D8EEE");
+
+        //    entity.HasOne(d => d.ProfessionNavigation).WithMany(p => p.ICareworkers)
+        //        .HasForeignKey(d => d.Profession)
+        //        .OnDelete(DeleteBehavior.ClientSetNull)
+        //        .HasConstraintName("FK_iCAREWorker_UserRole");
         //});
 
         modelBuilder.Entity<ModificationHistory>(entity =>
@@ -141,15 +147,17 @@ public partial class iCAREDBContext : DbContext
 
             entity.ToTable("ModificationHistory");
 
-            entity.Property(e => e.ModificationId).HasColumnName("ModificationID");
+            entity.Property(e => e.ModificationId)
+                //.ValueGeneratedNever()
+                .HasColumnName("ModificationID");
             entity.Property(e => e.DateOfModification).HasColumnType("datetime");
             entity.Property(e => e.Description).IsUnicode(false);
             entity.Property(e => e.DocId)
-                .HasMaxLength(50)
+                .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("DocID");
             entity.Property(e => e.WorkerId)
-                .HasMaxLength(50)
+                .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("WorkerID");
 
@@ -169,14 +177,14 @@ public partial class iCAREDBContext : DbContext
             entity.ToTable("PatientRecord");
 
             entity.Property(e => e.Id)
-                .HasMaxLength(50)
+                .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("ID");
             entity.Property(e => e.Address)
                 .HasMaxLength(255)
                 .IsUnicode(false);
             entity.Property(e => e.BedId)
-                .HasMaxLength(50)
+                .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("BedID");
             entity.Property(e => e.BloodGroup)
@@ -197,17 +205,17 @@ public partial class iCAREDBContext : DbContext
             entity.ToTable("TreatmentRecord");
 
             entity.Property(e => e.TreatmentId)
-                .HasMaxLength(50)
+                .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("TreatmentID");
             entity.Property(e => e.Description).IsUnicode(false);
             entity.Property(e => e.PatientId)
-                .HasMaxLength(50)
+                .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("PatientID");
             entity.Property(e => e.TreatmentDate).HasColumnType("datetime");
             entity.Property(e => e.WorkerId)
-                .HasMaxLength(50)
+                .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("WorkerID");
 
@@ -220,40 +228,16 @@ public partial class iCAREDBContext : DbContext
                 .HasConstraintName("FK__Treatment__Worke__48CFD27E");
         });
 
-        //modelBuilder.Entity<UserPassword>(entity =>
-        //{
-        //    entity.HasKey(e => e.Id).HasName("PK__UserPass__3214EC2779F9858B");
-
-        //    entity.ToTable("UserPassword");
-
-        //    entity.Property(e => e.Id)
-        //        .HasMaxLength(50)
-        //        .IsUnicode(false)
-        //        .HasColumnName("ID");
-        //    entity.Property(e => e.Password).IsUnicode(false);
-        //    entity.Property(e => e.Username)
-        //        .HasMaxLength(100)
-        //        .IsUnicode(false);
-
-        //    entity.HasOne(d => d.IdNavigation).WithOne(p => p.UserPassword)
-        //        .HasForeignKey<UserPassword>(d => d.Id)
-        //        .OnDelete(DeleteBehavior.ClientSetNull)
-        //        .HasConstraintName("FK__UserPassword__ID__3F466844");
-        //});
-
         modelBuilder.Entity<UserRole>(entity =>
         {
-            entity.HasKey(e => e.Id).HasName("PK__UserRole__3214EC27AC10000D");
+            entity.HasKey(e => e.ID).HasName("PK__UserRole__3214EC27AC10000D");
 
             entity.ToTable("UserRole");
 
-            entity.Property(e => e.Id)
-                .HasMaxLength(50)
+            entity.Property(e => e.ID)
+                .HasMaxLength(10)
                 .IsUnicode(false)
                 .HasColumnName("ID");
-            entity.Property(e => e.RoleName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
         });
 
         OnModelCreatingPartial(modelBuilder);
