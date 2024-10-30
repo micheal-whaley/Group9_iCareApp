@@ -18,7 +18,7 @@ namespace Group9_iCareApp.Controllers{
 
         // POST: Assign patients to a worker
         [HttpPost]
-        public IActionResult AssignPatients(string workerId, List<string> selectedPatientIDs)
+        public IActionResult AssignPatients(int workerId, List<int> selectedPatientIDs)
         {
             using var context = new iCAREDBContext();
             

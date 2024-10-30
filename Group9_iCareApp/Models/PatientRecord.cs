@@ -5,9 +5,11 @@ namespace Group9_iCareApp.Models;
 
 public partial class PatientRecord
 {
-    public string Id { get; set; } = null!;
+    public int Id { get; set; }
 
-    public string? Name { get; set; }
+    public string Fname { get; set; } = null!;
+
+    public string Lname { get; set; } = null!;
 
     public string? Address { get; set; }
 
@@ -22,6 +24,10 @@ public partial class PatientRecord
     public string? BedId { get; set; }
 
     public string? TreatmentArea { get; set; }
+
+    public int LocationId { get; set; }
+
+    public virtual Location Location { get; set; } = null!;
 
     public virtual ICollection<TreatmentRecord> TreatmentRecords { get; set; } = new List<TreatmentRecord>();
 }

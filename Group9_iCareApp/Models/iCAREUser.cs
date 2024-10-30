@@ -6,13 +6,22 @@ namespace Group9_iCareApp.Models;
 
 public partial class iCAREUser
 {
-    public string Id { get; set; } = null!;
+    public int Id { get; set; }
 
-    public string? Name { get; set; }
+    public string Fname { get; set; } = null!;
 
-    public string? Password { get; set; } = null!;
+    public string Lname { get; set; } = null!;
 
-    //public virtual iCAREAdmin? iCAREAdmin { get; set; }
+    public string Username { get; set; } = null!;
 
-    //public virtual iCAREWorker? iCAREWorker { get; set; }
+    public string Password { get; set; } = null!;
+
+    public int LocationId { get; set; }
+
+    //public virtual iCAREAdmin? ICareadmin { get; set; }
+
+    //public virtual iCAREWorker? ICareworker { get; set; }
+
+    public virtual Location Location { get; set; } = null!;
+
 }

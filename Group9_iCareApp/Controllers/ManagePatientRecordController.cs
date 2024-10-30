@@ -19,7 +19,7 @@ namespace Group9_iCareApp.Controllers
 
 
         // GET: ManagePatientRecord?id={id}
-        public IActionResult Index(string id)
+        public IActionResult Index(int id)
         {
             DbSet<PatientRecord> allRecords = _usercontext.PatientRecords;
             PatientRecord patient = allRecords.Find(id);  // Find the requested patient
@@ -63,7 +63,7 @@ namespace Group9_iCareApp.Controllers
 
         // POST: ManagePatientRecord/Edit?id={id}
         [HttpPost]
-        public ActionResult Edit(string id, PatientRecord patient)
+        public ActionResult Edit(int id, PatientRecord patient)
         {
             try
             {

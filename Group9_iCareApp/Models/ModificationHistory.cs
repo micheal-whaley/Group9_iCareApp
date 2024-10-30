@@ -11,9 +11,9 @@ public partial class ModificationHistory
 
     public string? Description { get; set; }
 
-    public string? DocId { get; set; }
+    public int? DocId { get; set; }
 
-    public string? WorkerId { get; set; }
+    public int? WorkerId { get; set; }
 
     public virtual DocumentMetadatum? Doc { get; set; }
 

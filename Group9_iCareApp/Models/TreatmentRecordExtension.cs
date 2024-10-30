@@ -14,7 +14,7 @@ namespace Group9_iCareApp.Models
             _context = context;
         }
 
-        public void SetRecord(string workerID, List<string> selectedPatients)
+        public void SetRecord(int workerID, List<int> selectedPatients)
         {
             // Get worker with id from database.
             var worker = _context.iCAREWorkers.FirstOrDefault(w => w.Id == workerID);
@@ -51,7 +51,7 @@ namespace Group9_iCareApp.Models
             _context.SaveChanges(); // Save changes
         }
 
-        public List<string?> GetPatientsID(string workerID) // can return null.
+        public List<int?> GetPatientsID(int workerID) // can return null.
         {
             var treatmentRecords = _context.TreatmentRecords
                 .Where(tr => tr.WorkerId == workerID)

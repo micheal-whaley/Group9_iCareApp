@@ -5,7 +5,7 @@ namespace Group9_iCareApp.Models;
 
 public partial class iCAREAdmin
 {
-    public string Id { get; set; } = null!;
+    public int Id { get; set; }
 
     public virtual iCAREUser IdNavigation { get; set; } = null!;
 }

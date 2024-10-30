@@ -11,9 +11,9 @@ public partial class TreatmentRecord
 
     public DateTime? TreatmentDate { get; set; }
 
-    public string? PatientId { get; set; }
+    public int? PatientId { get; set; }
 
-    public string? WorkerId { get; set; }
+    public int? WorkerId { get; set; }
 
     public virtual PatientRecord? Patient { get; set; }
 

@@ -16,7 +16,7 @@ namespace Group9_iCareApp.Controllers
 
         // GET: DisplayMyBoard for logged-on worker
         [HttpGet("DisplayMyBoard#{workerID}")]
-        public IActionResult Index(string workerID)
+        public IActionResult Index(int workerID)
         {
             // Fetch data from the database and check if workerID is valid
             var workerExists = CheckWorkerExists(workerID);
@@ -29,13 +29,13 @@ namespace Group9_iCareApp.Controllers
             var myPatients = RetrieveMyPatients(workerID);
             return View(myPatients);
         }
-        private bool CheckWorkerExists(string workerID)
+        private bool CheckWorkerExists(int workerID)
         {
             return _context.iCAREWorkers.Any(w => w.Id == workerID);
         }
 
         // GET: DisplayMyBoard/Details/5
-        public IActionResult Details(string patientId)
+        public IActionResult Details(int patientId)
         {
             var patient = _context.PatientRecords.Find(patientId);
             if (patient == null)
@@ -45,14 +45,14 @@ namespace Group9_iCareApp.Controllers
             return View(patient);
         }
 
-        public IActionResult ManagePatient(string patientId)
+        public IActionResult ManagePatient(int patientId)
         {
             return RedirectToAction("Index", "ManagePatient", new { patientID = patientId }); // redirect to christian's managepatientview.
         }
 
 
         // Retrieve all patients assigned to the specified worker.
-        public List<PatientRecord> RetrieveMyPatients(string workerID)
+        public List<PatientRecord> RetrieveMyPatients(int workerID)
         {
             var patientIDs = GetPatientIDs(workerID);
             var patients = GetMyPatients(workerID, patientIDs);
@@ -61,7 +61,7 @@ namespace Group9_iCareApp.Controllers
 
 
         // Get patient IDs assigned to the specified worker.
-        private List<string?> GetPatientIDs(string workerID)
+        private List<int?> GetPatientIDs(int workerID)
         {
             var patientIDs = _context.TreatmentRecords
                 .Where(tr => tr.WorkerId == workerID)
@@ -72,7 +72,7 @@ namespace Group9_iCareApp.Controllers
         }
 
         // Get patient records based on IDs and worker ID.
-        private List<PatientRecord> GetMyPatients(string workerID, List<string?> patientIDs)
+        private List<PatientRecord> GetMyPatients(int workerID, List<int?> patientIDs)
         {
             var myPatients = _context.PatientRecords
                 .Where(p => patientIDs.Contains(p.Id) && p.TreatmentRecords.Any(tr => tr.WorkerId == workerID))

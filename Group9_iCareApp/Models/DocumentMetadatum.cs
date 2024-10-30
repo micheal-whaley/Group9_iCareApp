@@ -5,7 +5,7 @@ namespace Group9_iCareApp.Models;
 
 public partial class DocumentMetadatum
 {
-    public string DocId { get; set; } = null!;
+    public int DocId { get; set; }
 
     public string? DocName { get; set; }
 
