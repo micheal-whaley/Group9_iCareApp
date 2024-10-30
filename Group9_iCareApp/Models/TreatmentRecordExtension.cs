@@ -5,55 +5,61 @@ using System.Web;
 
 namespace Group9_iCareApp.Models
 {
-    public partial class TreatmentRecord // all of this is commented out to avoid errors until the models are properly implemented
+    public partial class TreatmentRecordService
     {
-        //public void SetRecord(string workerID, List<string> selectedPatients)
-        //{
-        //    using (var context = new iCAREEntities())
-        //    {
-        //        // Get worker with id from database.
-        //        var worker = context.iCAREWorkers.FirstOrDefault(w => w.ID == workerID);
-        //        if (worker == null)
-        //        {
-        //            throw new KeyNotFoundException($"Worker with ID {workerID} not found.");
-        //        }
+        private readonly iCAREDBContext _context;
 
-        //        // Iterate through each selected patient ID and create a new treatment record.
-        //        foreach (var patientID in selectedPatients)
-        //        {
-        //            var patient = context.PatientRecords.FirstOrDefault(p => p.ID == patientID);
-        //            if (patient == null)
-        //            {
-        //                throw new KeyNotFoundException($"Patient with ID {patientID} not found.");
-        //            }
+        public TreatmentRecordService(iCAREDBContext context)
+        {
+            _context = context;
+        }
 
-        //            // Create new treatment record for patient.
-        //            var newTreatmentRecord = new TreatmentRecord
-        //            {
-        //                TreatmentID = System.Guid.NewGuid().ToString(), // Generate new unique treatmentid
-        //                WorkerID = workerID,
-        //                PatientID = patientID,
-        //                Description = $"Assigned to worker {workerID}",
-        //                TreatmentDate = DateTime.Now,
-        //            };
+        public void SetRecord(string workerID, List<string> selectedPatients)
+        {
+            // Get worker with id from database.
+            var worker = _context.iCAREWorkers.FirstOrDefault(w => w.Id == workerID);
+            if (worker == null)
+            {
+                throw new KeyNotFoundException($"Worker with ID {workerID} not found.");
+            }
 
-        //            // Add treatment record to context
-        //            context.TreatmentRecords.Add(newTreatmentRecord);
+            // Iterate through each selected patient ID and create a new treatment record.
+            foreach (var patientID in selectedPatients)
+            {
+                var patient = _context.PatientRecords.FirstOrDefault(p => p.Id == patientID);
+                if (patient == null)
+                {
+                    throw new KeyNotFoundException($"Patient with ID {patientID} not found.");
+                }
 
-        //        }
-        //        context.SaveChanges(); // Save changes
-        //    }
-        //}
-        //public List<string> GetPatientsID(string workerID)
-        //{
-        //    using (var context = new iCAREEntities())
-        //    {
-        //        var treatmentRecords = context.TreatmentRecords
-        //            .Where(tr => tr.WorkerID == workerID)
-        //            .Select(tr => tr.PatientID)
-        //            .ToList();
-        //        return treatmentRecords;
-        //    }
-        //}
+                // Create new treatment record for patient.
+                var newTreatmentRecord = new TreatmentRecord
+                {
+                    TreatmentId = Guid.NewGuid().ToString(), // Generate new unique treatment ID
+                    WorkerId = workerID,
+                    PatientId = patientID,
+                    Description = $"Assigned to worker {workerID}",
+                    TreatmentDate = DateTime.UtcNow,
+                    Worker = worker,
+                    Patient = patient
+                };
+
+                // Add treatment record to context
+                _context.TreatmentRecords.Add(newTreatmentRecord);
+            }
+
+            _context.SaveChanges(); // Save changes
+        }
+
+        public List<string?> GetPatientsID(string workerID) // can return null.
+        {
+            var treatmentRecords = _context.TreatmentRecords
+                .Where(tr => tr.WorkerId == workerID)
+                .Select(tr => tr.PatientId)
+                .ToList();
+
+            return treatmentRecords;
+        }
     }
+
 }
