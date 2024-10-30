@@ -3,51 +3,45 @@ using System.Collections.Generic;
 using Group9_iCareApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
+using Microsoft.AspNetCore.Http.HttpResults;
 
-namespace Group9_iCareApp.Controllers
-{
-    public class AssignPatientController : Controller // anything that is commented out is that way to avoid errors for now until the models are fully implemented
+namespace Group9_iCareApp.Controllers{
+    public class AssignPatientController : Controller
     {
         // GET: Retrieve all patient records
-
-        //public IActionResult RetrieveAllPatients()
-        //{
-        //    using (var context = new iCAREEntities())
-        //    {
-        //        var patients = context.PatientRecords.ToList(); // Retrieve all patients from the database
-        //        return Json(patients, JsonRequestBehavior.AllowGet); // Return patients as JSON didn't know you could do this until I looked it up.
-        //    }
-        //}
+        public IActionResult RetrieveAllPatients()
+        {
+            using var context = new iCAREDBContext();
+            var patients = context.PatientRecords.ToList(); // Retrieve all patients from the database
+            return Json(patients); // Return patients as JSON
+        }
 
         // POST: Assign patients to a worker
-        //public IActionResult AssignPatients(string workerID, List<string> selectedPatientIDs)
-        //{
-        //    using (var context = new iCAREEntities())
-        //    {
-        //        var worker = context.iCAREWorkers.FirstOrDefault(w => w.ID == workerID); // Find the worker by ID
-        //        if (worker == null)
-        //        {
-        //            return Content("Worker not found.");
-        //        }
+        [HttpPost]
+        public IActionResult AssignPatients(string workerId, List<string> selectedPatientIDs)
+        {
+            using var context = new iCAREDBContext();
+            
+            var worker = context.iCAREWorkers.FirstOrDefault(w => w.Id == workerId);
+            if (worker == null)
+            {
+                return NotFound("Worker not found.");
+            }
 
-        //        var assignedMessages = new List<string>();
+            var assignedMessages = new List<string>();
 
-        //        foreach (var patientID in selectedPatientIDs)
-        //        {
-        //            var patient = context.PatientRecords.FirstOrDefault(p => p.ID == patientID); // Find the patient by ID
-        //            if (patient == null)
-        //            {
-        //                assignedMessages.Add($"Patient with ID {patientID} not found.");
-        //                continue;
-        //            }
-
-        //            // Use the existing method to assign the nurse
-        //            string message = patient.AssignNurse(worker); // Call the AssignNurse method from PatientRecord
-        //            assignedMessages.Add(message); // Collect the response message
-        //        }
-
-        //        return Json(assignedMessages); // Return the messages as JSON
-        //    }
-        //}
+            foreach (var patientId in selectedPatientIDs)
+            {
+                var patient = context.PatientRecords.FirstOrDefault(p => p.Id == patientId);
+                if (patient == null)
+                {
+                    assignedMessages.Add($"Patient with ID {patientId} not found.");
+                    continue;
+                }
+                string message = patient.AssignToNurse(workerId); // Assuming this method exists and returns a message
+                assignedMessages.Add(message);
+            }
+            return Json(assignedMessages); // Return messages as JSON
+        }
     }
 }
