@@ -21,7 +21,7 @@ public partial class PatientRecord
 
     public string? BloodGroup { get; set; }
 
-    public string? BedId { get; set; }
+    public int? BedId { get; set; }
 
     public string? TreatmentArea { get; set; }
 
