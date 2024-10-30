@@ -13,9 +13,9 @@ public partial class iCAREUser
     [Required]
     public string? Password { get; set; }
 
-    public virtual iCAREAdmin? iCAREAdmin { get; set; }
+    //public virtual iCAREAdmin? iCAREAdmin { get; set; }
 
-    public virtual iCAREWorker? iCAREWorker { get; set; }
+    //public virtual iCAREWorker? iCAREWorker { get; set; }
 
-    public virtual UserPassword? UserPassword { get; set; }
+    //public virtual UserPassword? UserPassword { get; set; }
 }
