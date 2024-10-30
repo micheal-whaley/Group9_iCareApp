@@ -1,0 +1,16 @@
+﻿@model Group9_iCareApp.Models.PatientRecord
+
+@{
+    ViewBag.Title = "Edit";
+}
+
+<div class="container mt-5">
+@if ((Boolean)ViewData["success"])
+{
+    <h2>Patient record updated successfully.</h2>
+}
+else
+{
+    <h2>Unable to update the patient record.</h2>
+}
+</div>

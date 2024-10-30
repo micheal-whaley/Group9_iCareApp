@@ -2,15 +2,28 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
+using Group9_iCareApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Group9_iCareApp.Controllers
 {
     public class ManagePatientRecordController : Controller
     {
-        // GET: ManagePatientRecord
-        public IActionResult Index()
+        private readonly iCAREDBContext _usercontext;
+
+        public ManagePatientRecordController(iCAREDBContext usercontext)
         {
+            _usercontext = usercontext;
+        }
+
+
+        // GET: ManagePatientRecord?id={id}
+        public IActionResult Index(string id)
+        {
+            DbSet<PatientRecord> allRecords = _usercontext.PatientRecords;
+            PatientRecord patient = allRecords.Find(id);  // Find the requested patient
+            ViewData["Message"] = patient;  // Pass the patient to the view
             return View();
         }
 
@@ -48,18 +61,23 @@ namespace Group9_iCareApp.Controllers
             return View();
         }
 
-        // POST: ManagePatientRecord/Edit/5
+        // POST: ManagePatientRecord/Edit?id={id}
         [HttpPost]
-        public ActionResult Edit(int id, FormCollection collection)
+        public ActionResult Edit(string id, PatientRecord patient)
         {
             try
             {
-                // TODO: Add update logic here
-
-                return RedirectToAction("Index");
+                patient.Id = id;
+                DbSet<PatientRecord> allRecords = _usercontext.PatientRecords;
+                allRecords.Update(patient);
+                _usercontext.SaveChanges();
+                patient.Id = id;
+                ViewData["success"] = true;
+                return View();
             }
             catch
             {
+                ViewData["success"] = false;
                 return View();
             }
         }

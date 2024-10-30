@@ -1,0 +1,40 @@
+﻿@model Group9_iCareApp.Models.PatientRecord
+@{
+    ViewBag.Title = "Patient Management";
+    var patient = (Group9_iCareApp.Models.PatientRecord)ViewData["Message"];
+}
+
+@if (patient != null)
+{
+
+    <h2>Update Record for @patient.Name</h2>
+
+
+    <form asp-action="Edit" asp-controller="ManagePatientRecord" asp-route-id="@patient.Id">
+        <label class="mt-4">Name</label>
+        <input class="form-control mt-4" type="text" value="@patient.Name" asp-for="Name" />
+        <label class="mt-4">Address</label>
+        <input class="form-control mt-4" type="text" value="@patient.Address" asp-for="Address" />
+        <label class="mt-4">Date of Birth</label>
+        <input class="form-control mt-4" type="date" value="@patient.DateOfBirth?.ToString("yyyy-MM-dd")" asp-for="DateOfBirth" />
+        <label class="mt-4">Height</label>
+        <input class="form-control mt-4" type="number" value="@patient.Height" asp-for="Height" />
+        <label class="mt-4">Weight</label>
+        <input class="form-control mt-4" type="number" value="@patient.Weight" asp-for="Weight" />
+        <label class="mt-4">Blood Group</label>
+        <input class="form-control mt-4" type="text" value="@patient.BloodGroup" asp-for="BloodGroup" />
+        <label class="mt-4">Bed ID</label>
+        <input class="form-control mt-4" type="text" value="@patient.BedId" asp-for="BedId" />
+        <label class="mt-4">Treatment Area</label>
+        <input class="form-control mt-4" type="text" value="@patient.TreatmentArea" asp-for="TreatmentArea" />
+
+        <button type="submit" class="btn btn-primary mt-4">Save</button>
+    </form>
+}
+else
+{
+    <div class="container mt-5">
+        <h2>Unable to edit the requested patient.</h2>
+        <p>Either you do not have access to this patient or the patient does not exist.</p>
+    </div>
+}

@@ -36,6 +36,7 @@ namespace Group9_iCareApp.Controllers
 
         public IActionResult LoginForm(iCAREUser model)
         {
+            // Login for administrators
             if (model.Id == null) // doesnt exist yet
             {
                 _usercontext.iCAREUsers.Add(model);
