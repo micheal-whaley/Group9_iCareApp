@@ -39,7 +39,7 @@ namespace Group9_iCareApp.Controllers{
                     continue;
                 }
                 //string message = patient.AssignToNurse(workerId); // Assuming this method exists and returns a message
-               // assignedMessages.Add(message);
+                //assignedMessages.Add(message);
             }
             return Json(assignedMessages); // Return messages as JSON
         }

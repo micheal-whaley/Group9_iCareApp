@@ -1,11 +1,39 @@
-﻿@model IEnumerable<Group9_iCareApp.Models.PatientRecord>
+﻿@model List<Group9_iCareApp.Models.PatientRecord>
 
 @{
-    ViewBag.Title = "Index";
+    ViewData["Title"] = "My Patient Board";
 }
 
-<h2>Index</h2>
+<h1>@ViewData["Title"]</h1>
 
-<p>
-    @Html.ActionLink("Create New", "Create")
-</p>
+@if (Model != null && Model.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Patient ID</th>
+                <th>Name</th>
+                <th>Status</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var patient in Model)
+            {
+                <tr>
+                    <td>@patient.Id</td>
+                    <td>@patient.Name</td> <!-- Replace with the actual property for patient's name -->
+                    <td>@patient.DateOfBirth</td> <!-- Replace with the actual property for patient's status -->
+                    <td>
+                        <a asp-action="Details" asp-route-patientId="@patient.Id" class="btn btn-info">View Details</a>
+                        <a asp-action="ManagePatient" asp-route-patientId="@patient.Id" class="btn btn-primary">Manage</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No patients assigned.</p>
+}

@@ -1,11 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using Group9_iCareApp.Models;
+﻿using Group9_iCareApp.Models;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
 
 // anything that is commented out is that way to avoid errors for now until the models are fully implemented
 
@@ -13,119 +7,78 @@ namespace Group9_iCareApp.Controllers
 {
     public class DisplayMyBoardController : Controller
     {
-        // GET: DisplayMyBoard
-        //public IActionResult Index(string workerID)
-        //{
-        //    // fetch data from database.
-        //    var myPatients = retrieveMyPatients(workerID);
-        //    ViewBag.MyPatients = myPatients;
+        private readonly iCAREDBContext _context;
 
-        //    return View();
-        //}
+        public DisplayMyBoardController(iCAREDBContext context)
+        {
+            _context = context;
+        }
+
+        // GET: DisplayMyBoard for logged-on worker
+        [HttpGet("DisplayMyBoard#{workerID}")]
+        public IActionResult Index(string workerID)
+        {
+            // Fetch data from the database and check if workerID is valid
+            var workerExists = CheckWorkerExists(workerID);
+            if (!workerExists)
+            {
+                // Handle the case where the workerID does not exist
+                return View("Error", "Worker ID does not exist.");
+            }
+            // Fetch data from database.
+            var myPatients = RetrieveMyPatients(workerID);
+            return View(myPatients);
+        }
+        private bool CheckWorkerExists(string workerID)
+        {
+            return _context.iCAREWorkers.Any(w => w.Id == workerID);
+        }
 
         // GET: DisplayMyBoard/Details/5
-        public IActionResult Details(int id)
+        public IActionResult Details(string patientId)
         {
-            return View();
-        }
-
-        // GET: DisplayMyBoard/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
-
-        // POST: DisplayMyBoard/Create
-        [HttpPost]
-        public IActionResult Create(FormCollection collection)
-        {
-            try
+            var patient = _context.PatientRecords.Find(patientId);
+            if (patient == null)
             {
-                // TODO: Add insert logic here
-
-                return RedirectToAction("Index");
+                return NotFound();
             }
-            catch
-            {
-                return View();
-            }
+            return View(patient);
         }
 
-        // GET: DisplayMyBoard/Edit/5
-        public IActionResult Edit(int id)
+        public IActionResult ManagePatient(string patientId)
         {
-            return View();
+            return RedirectToAction("Index", "ManagePatient", new { patientID = patientId }); // redirect to christian's managepatientview.
         }
 
-        // POST: DisplayMyBoard/Edit/5
-        [HttpPost]
-        public IActionResult Edit(int id, FormCollection collection)
+
+        // Retrieve all patients assigned to the specified worker.
+        public List<PatientRecord> RetrieveMyPatients(string workerID)
         {
-            try
-            {
-                // TODO: Add update logic here
-
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
+            var patientIDs = GetPatientIDs(workerID);
+            var patients = GetMyPatients(workerID, patientIDs);
+            return patients;
         }
 
-        // GET: DisplayMyBoard/Delete/5
-        public IActionResult Delete(int id)
+
+        // Get patient IDs assigned to the specified worker.
+        private List<string?> GetPatientIDs(string workerID)
         {
-            return View();
+            var patientIDs = _context.TreatmentRecords
+                .Where(tr => tr.WorkerId == workerID)
+                .Select(tr => tr.PatientId)
+                .ToList();
+
+            return patientIDs;
         }
 
-        // POST: DisplayMyBoard/Delete/5
-        [HttpPost]
-        public IActionResult Delete(int id, FormCollection collection)
+        // Get patient records based on IDs and worker ID.
+        private List<PatientRecord> GetMyPatients(string workerID, List<string?> patientIDs)
         {
-            try
-            {
-                // TODO: Add delete logic here
+            var myPatients = _context.PatientRecords
+                .Where(p => patientIDs.Contains(p.Id) && p.TreatmentRecords.Any(tr => tr.WorkerId == workerID))
+                .ToList();
 
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
+            return myPatients;
         }
-
-
-        //public List<PatientRecord> retrieveMyPatients(string workerID)
-        //{
-        //    var patientIDs = getPatientIDs(workerID);
-
-        //    var patients = GetMyPatients(workerID, patientIDs);
-
-        //    return patients;
-        //}
-        //public List<string> getPatientIDs(string workerID)
-        //{
-        //    using (var context = new iCAREEntities())
-        //    {
-        //        var patientIDs = context.TreatmentRecords
-        //            .Where(tr => tr.WorkerID == workerID) // Filter by workerID
-        //            .Select(tr => tr.PatientID)
-        //            .ToList();
-        //        return patientIDs;
-        //    }
-        //}
-
-        //public List<PatientRecord> GetMyPatients(string workerID, List<string> patientIDs)
-        //{
-        //    using (var context = new iCAREEntities())
-        //    {
-        //        var myPatients = context.PatientRecords
-        //            .Where(p => patientIDs.Contains(p.ID) && p.TreatedBy.TreatmentID == workerID)
-        //            .ToList();
-        //        return myPatients;
-        //    }
-        //}
-
     }
 }
