@@ -104,11 +104,10 @@ namespace Group9_iCareApp.Migrations
                 columns: table => new
                 {
                     ID = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Fname = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Lname = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Username = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    Password = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: false),
-                    locationID = table.Column<int>(type: "int", nullable: false),
+                    Fname = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true),
+                    Lname = table.Column<string>(type: "varchar(50)", unicode: false, maxLength: 50, nullable: true),
+      
+                    locationID = table.Column<int>(type: "int", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),

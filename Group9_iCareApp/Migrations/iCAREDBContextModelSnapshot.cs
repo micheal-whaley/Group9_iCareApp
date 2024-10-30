@@ -330,11 +330,7 @@ namespace Group9_iCareApp.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("nvarchar(256)");
 
-                    b.Property<string>("Username")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .IsUnicode(false)
-                        .HasColumnType("varchar(50)");
+                   
 
                     b.HasKey("Id")
                         .HasName("PK__iCAREUse__3214EC275A117A47");

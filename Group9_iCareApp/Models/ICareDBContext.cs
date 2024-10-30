@@ -101,18 +101,12 @@ public partial class iCAREDBContext : IdentityDbContext<iCAREUser>
             entity.Property(e => e.Lname)
                 .HasMaxLength(50)
                 .IsUnicode(false);
-            entity.Property(e => e.LocationId).HasColumnName("locationID");
-            entity.Property(e => e.Password)
-                .HasMaxLength(50)
-                .IsUnicode(false);
-            entity.Property(e => e.Username)
+            
+            entity.Property(e => e.UserName)
                 .HasMaxLength(50)
                 .IsUnicode(false);
 
-            entity.HasOne(d => d.Location).WithMany(p => p.ICareusers)
-                .HasForeignKey(d => d.LocationId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("FK_iCAREUser_Location");
+    
         });
 
         //modelBuilder.Entity<iCAREWorker>(entity =>

@@ -9,20 +9,18 @@ public partial class iCAREUser : IdentityUser
 {
     //public int Id { get; set; }
 
-    public string Fname { get; set; } = null!;
+    public string? Fname { get; set; }
 
-    public string Lname { get; set; } = null!;
+    public string? Lname { get; set; }
 
-    public string Username { get; set; } = null!;
 
-    public string Password { get; set; } = null!;
 
-    public int LocationId { get; set; }
+    //public int LocationId { get; set; }
 
     //public virtual iCAREAdmin? ICareadmin { get; set; }
 
     //public virtual iCAREWorker? ICareworker { get; set; }
 
-    public virtual Location Location { get; set; } = null!;
+   // public virtual Location Location { get; set; } = null!;
 
 }
