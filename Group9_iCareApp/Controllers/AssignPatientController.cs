@@ -8,9 +8,9 @@ using Microsoft.Extensions.Logging;
 
 namespace Group9_iCareApp.Controllers
 {
-    [ApiController]
-    [Route("api/[controller]")]
-    public class AssignPatientController : ControllerBase
+    //[ApiController]
+    //[Route("api/[controller]")]
+    public class AssignPatientController : Controller
     {
         private readonly iCAREDBContext _context;
         private readonly ILogger<AssignPatientController> _logger;
@@ -117,6 +117,12 @@ namespace Group9_iCareApp.Controllers
             _context.SaveChanges();
 
             return $"Assignment successful: Nurse {nurseId} assigned to patient {patientId}.";
+        }
+
+        public IActionResult AssignPatient()
+        {
+            var patients = _context.PatientRecords.AsNoTracking().ToList();
+            return View(patients);
         }
 
         private string AssignDoctorToPatient(int patientId, int doctorId)
