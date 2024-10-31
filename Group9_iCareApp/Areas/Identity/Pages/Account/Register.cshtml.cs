@@ -19,17 +19,26 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
+using Microsoft.Data.SqlClient;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Group9_iCareApp.Areas.Identity.Pages.Account
 {
     public class RegisterModel : PageModel
     {
+        SqlCommand com = new SqlCommand();
+
+        SqlDataReader dr;
+        SqlConnection con = new SqlConnection();
         private readonly SignInManager<iCAREUser> _signInManager;
         private readonly UserManager<iCAREUser> _userManager;
         private readonly IUserStore<iCAREUser> _userStore;
         private readonly IUserEmailStore<iCAREUser> _emailStore;
         private readonly ILogger<RegisterModel> _logger;
         private readonly IEmailSender _emailSender;
+        private readonly iCAREDBContext _dbContext;
+
+        public List<Location> locations = new List<Location>();
 
         public RegisterModel(
             UserManager<iCAREUser> userManager,
@@ -44,6 +53,68 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
+            _dbContext = new iCAREDBContext();
+            string connectionString = "Data Source=localhost\\MSSQLSERVER01;Initial Catalog=Group9_iCareDB;Integrated Security=True; Encrypt=True;Trust Server Certificate=True;";
+
+            con.ConnectionString = connectionString;
+        }
+
+
+    //    var listdata = _dbcontext.UserDetails.ToList().Select(x => new Group9_iCareApp.Models.Location
+    //    {
+    //        userid = x.userid
+    //                   }).ToList();
+
+    //public string locationName;
+
+    //    public void OnGet()
+    //    {
+    //        string connectionString = "Data Source=localhost\\\\MSSQLSERVER01;Initial Catalog=Group9_iCareDB;Integrated Security=True";
+    //        SqlConnection con = new SqlConnection(connectionString);
+    //        con.Open();
+
+    //        string sqlQuery = "select name, Location from Group9_iCareDB where ID =1";
+
+    //        SqlCommand cmd = new SqlCommand(sqlQuery, con);
+
+    //        SqlDataReader dr = cmd.ExecuteReader();
+
+    //        if (dr.Read())
+    //        {
+    //            locationName = dr["name"].ToString();
+    //        }
+
+    //        con.Close();
+    //    }
+
+
+        private void FetchData()
+        {
+
+            if (locations.Count > 0)
+            {
+                locations.Clear();
+            }
+
+            try
+            {
+                con.Open();
+                com.Connection = con;
+                com.CommandText = "SELECT TOP (1000) [ID],[name],[Description] FROM [Group9_iCareDB].[dbo].[Location]";
+                dr = com.ExecuteReader();
+                Console.WriteLine("RAAAAH");
+                while (dr.Read())
+                {
+                    Console.Write("AAAAH LOOPING");
+                    locations.Add(new Location() { Id=  int.Parse(dr["ID"].ToString()), 
+                        Name = dr["name"].ToString(),
+                        Description = dr["description"].ToString() });
+                }
+                con.Close();
+            } catch
+            {
+                throw;
+            }
         }
 
         /// <summary>
@@ -84,6 +155,21 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
             ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
             ///     directly from your code. This API may change or be removed in future releases.
             /// </summary>
+            /// 
+
+            [Required]
+            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 2)]
+            [DataType(DataType.Text)]
+            [Display(Name ="First Name")]
+            public string Fname { get; set; }
+
+            [Required]
+            [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 2)]
+            [DataType(DataType.Text)]
+            [Display(Name = "Last Name")]
+            public string Lname { get; set; }
+
+
             [Required]
             [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
             [DataType(DataType.Password)]
@@ -105,6 +191,7 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
         {
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
+            FetchData();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -114,6 +201,9 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
             if (ModelState.IsValid)
             {
                 var user = CreateUser();
+
+                user.Fname = Input.Fname;
+                user.Lname = Input.Lname;
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);

@@ -19,7 +19,7 @@ namespace Group9_iCareApp
             builder.Services.AddDbContext<iCAREDBContext>(option => option.UseSqlServer("Server=localhost\\MSSQLSERVER01;Database=Group9_iCareDB;Trusted_Connection=True;"));
 
 
-            builder.Services.AddDefaultIdentity<iCAREUser>(options => options.SignIn.RequireConfirmedAccount = true).AddEntityFrameworkStores<iCAREDBContext>();
+            builder.Services.AddDefaultIdentity<iCAREUser>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<iCAREDBContext>();
 
             var app = builder.Build();
 

@@ -2,6 +2,10 @@
 @model RegisterModel
 @{
     ViewData["Title"] = "Register";
+    string[] TableHeaders = new string[]
+    {
+    "ID","name","Description"
+    };
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -16,6 +20,53 @@
                 <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
                 <label asp-for="Input.Email">Email</label>
                 <span asp-validation-for="Input.Email" class="text-danger"></span>
+            </div>
+            <div class="table">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            @{
+                                foreach (var head in TableHeaders)
+                                {
+                                    <th>
+                                        @head
+                                    </th>
+                                }
+                            }
+                        </tr>
+                    </thead>
+              
+                     <tbody>
+                        @{
+                            if (Model.locations != null)
+                            {
+                                foreach (var Data in Model.locations)
+                                {
+                                    <tr>
+                                        <td>@Data.Id</td>
+                                        <td>@Data.Name</td>
+                                        <td>@Data.Description</td>
+                                    </tr>
+                                }
+
+                            } else
+                            {
+                                <tr><td>there is no model</td></tr>
+                            }
+                        }
+                     </tbody>
+                </table>
+            </div>
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Fname" class="form-control" aria-required="true" placeholder="first name" />
+                <label asp-for="Input.Fname">First Name</label>
+                <span asp-validation-for="Input.Fname" class="text-danger"></span>
+            </div>
+
+            <div class="form-floating mb-3">
+                <input asp-for="Input.Lname" class="form-control" aria-required="true" placeholder="last name" />
+                <label asp-for="Input.Lname">Last Name</label>
+                <span asp-validation-for="Input.Lname" class="text-danger"></span>
             </div>
             <div class="form-floating mb-3">
                 <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
