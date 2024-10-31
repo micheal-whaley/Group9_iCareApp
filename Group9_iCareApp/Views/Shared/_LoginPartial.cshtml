@@ -3,12 +3,17 @@
 
 @inject SignInManager<iCAREUser> SignInManager
 @inject UserManager<iCAREUser> UserManager
+@inject iCAREDBContext DBContext
 
+@{
+    string userID = UserManager.GetUserId(User) ?? string.Empty;
+    string fName = DBContext.iCAREUsers.Find(userID)?.Fname ?? string.Empty;
+}
 <ul class="navbar-nav">
 @if (SignInManager.IsSignedIn(User))
 {
     <li class="nav-item">
-        <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @UserManager.GetUserName(User)!</a>
+        <a id="manage" class="nav-link text-dark" asp-area="Identity" asp-page="/Account/Manage/Index" title="Manage">Hello @fName!</a>
     </li>
     <li class="nav-item">
         <form id="logoutForm" class="form-inline" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Action("Index", "Home", new { area = "" })">
