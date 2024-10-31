@@ -15,7 +15,7 @@ public partial class iCAREUser : IdentityUser
 
 
 
-    //public int LocationId { get; set; }
+    public int locationID { get; set; }
 
     //public virtual iCAREAdmin? ICareadmin { get; set; }
 

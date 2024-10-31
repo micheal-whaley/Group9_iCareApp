@@ -59,34 +59,8 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
             con.ConnectionString = connectionString;
         }
 
-
-    //    var listdata = _dbcontext.UserDetails.ToList().Select(x => new Group9_iCareApp.Models.Location
-    //    {
-    //        userid = x.userid
-    //                   }).ToList();
-
-    //public string locationName;
-
-    //    public void OnGet()
-    //    {
-    //        string connectionString = "Data Source=localhost\\\\MSSQLSERVER01;Initial Catalog=Group9_iCareDB;Integrated Security=True";
-    //        SqlConnection con = new SqlConnection(connectionString);
-    //        con.Open();
-
-    //        string sqlQuery = "select name, Location from Group9_iCareDB where ID =1";
-
-    //        SqlCommand cmd = new SqlCommand(sqlQuery, con);
-
-    //        SqlDataReader dr = cmd.ExecuteReader();
-
-    //        if (dr.Read())
-    //        {
-    //            locationName = dr["name"].ToString();
-    //        }
-
-    //        con.Close();
-    //    }
-
+        
+        public SelectList Locations { get; set; }
 
         private void FetchData()
         {
@@ -107,10 +81,11 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
                 {
                     Console.Write("AAAAH LOOPING");
                     locations.Add(new Location() { Id=  int.Parse(dr["ID"].ToString()), 
-                        Name = dr["name"].ToString(),
-                        Description = dr["description"].ToString() });
+                        Name = dr["name"].ToString() });
                 }
+                Locations = new SelectList(locations, "Id", "Name");
                 con.Close();
+
             } catch
             {
                 throw;
@@ -169,6 +144,9 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
             [Display(Name = "Last Name")]
             public string Lname { get; set; }
 
+            [Required]
+            [Display(Name = "Location ID")]
+            public int locationID { set; get; }
 
             [Required]
             [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
@@ -204,6 +182,7 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
 
                 user.Fname = Input.Fname;
                 user.Lname = Input.Lname;
+                user.locationID = Input.locationID;
 
                 await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
                 await _emailStore.SetEmailAsync(user, Input.Email, CancellationToken.None);
