@@ -57,6 +57,7 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
             string connectionString = "Data Source=localhost\\MSSQLSERVER01;Initial Catalog=Group9_iCareDB;Integrated Security=True; Encrypt=True;Trust Server Certificate=True;";
 
             con.ConnectionString = connectionString;
+            FetchData();
         }
 
         
@@ -76,10 +77,10 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
                 com.Connection = con;
                 com.CommandText = "SELECT TOP (1000) [ID],[name],[Description] FROM [Group9_iCareDB].[dbo].[Location]";
                 dr = com.ExecuteReader();
-                Console.WriteLine("RAAAAH");
+                Console.WriteLine("RAAAAH\n");
                 while (dr.Read())
                 {
-                    Console.Write("AAAAH LOOPING");
+                    Console.Write("AAAAH LOOPING\n");
                     locations.Add(new Location() { Id=  int.Parse(dr["ID"].ToString()), 
                         Name = dr["name"].ToString() });
                 }
@@ -115,6 +116,8 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
         ///     This API supports the ASP.NET Core Identity default UI infrastructure and is not intended to be used
         ///     directly from your code. This API may change or be removed in future releases.
         /// </summary>
+        /// 
+
         public class InputModel
         {
             /// <summary>
@@ -169,7 +172,8 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
         {
             ReturnUrl = returnUrl;
             ExternalLogins = (await _signInManager.GetExternalAuthenticationSchemesAsync()).ToList();
-            FetchData();
+            Console.Write("fetching data bro\n");
+            //FetchData();
         }
 
         public async Task<IActionResult> OnPostAsync(string returnUrl = null)
@@ -216,11 +220,15 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
                 }
                 foreach (var error in result.Errors)
                 {
+                    Console.Write("About to show error:\n");
+                    Console.Write(error.Description);
                     ModelState.AddModelError(string.Empty, error.Description);
                 }
             }
 
             // If we got this far, something failed, redisplay form
+            Console.Write("\n");
+            Console.Write("reloading page there was a problem\n");
             return Page();
         }
 
