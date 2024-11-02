@@ -20,10 +20,6 @@ namespace Group9_iCareApp.Controllers
             return View();
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
         public IActionResult RegisterPage()
         {
             return View();
