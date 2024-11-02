@@ -53,8 +53,8 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
             _signInManager = signInManager;
             _logger = logger;
             _emailSender = emailSender;
-            _dbContext = new iCAREDBContext();
-            string connectionString = "Data Source=localhost\\MSSQLSERVER01;Initial Catalog=Group9_iCareDB;Integrated Security=True; Encrypt=True;Trust Server Certificate=True;";
+            _dbContext = new iCAREDBContext();  
+            string connectionString = _dbContext.connectionString;
 
             con.ConnectionString = connectionString;
             FetchData();

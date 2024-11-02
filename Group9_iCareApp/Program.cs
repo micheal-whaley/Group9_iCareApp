@@ -16,7 +16,7 @@ namespace Group9_iCareApp
             builder.Services.AddRazorPages();
 
             //CHANGE NAME OF SERVER TO YOUR SERVER NAME
-            builder.Services.AddDbContext<iCAREDBContext>(option => option.UseSqlServer("Server=localhost\\MSSQLSERVER01;Database=Group9_iCareDB;Trusted_Connection=True;"));
+            builder.Services.AddDbContext<iCAREDBContext>(option => option.UseSqlServer(connectionString));
 
 
             builder.Services.AddDefaultIdentity<iCAREUser>(options => options.SignIn.RequireConfirmedAccount = false).AddEntityFrameworkStores<iCAREDBContext>();
