@@ -52,7 +52,7 @@ public partial class iCAREDBContext : IdentityDbContext<iCAREUser>
             entity.ToTable("Document");
 
             entity.Property(e => e.Id)
-                .ValueGeneratedNever()
+                //.ValueGeneratedNever()
                 .HasColumnName("ID");
             entity.Property(e => e.CreationDate).HasColumnName("creationDate");
             entity.Property(e => e.DocumentName)
