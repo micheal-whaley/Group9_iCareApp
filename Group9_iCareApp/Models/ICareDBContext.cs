@@ -11,7 +11,9 @@ public partial class iCAREDBContext : IdentityDbContext<iCAREUser>
     {
     }
 
-    public string connectionString { get; } = "Data Source=localhost\\MSSQLSERVER01;Initial Catalog=Group9_iCareDB;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
+    public string connectionString { get; } = "Data Source=KHURAMACER\\CS_4320_SERVER;Initial Catalog=Group9_iCareDB;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
+
+    public virtual DbSet<Document> Documents { get; set; }
     public virtual DbSet<DocumentMetadatum> DocumentMetadata { get; set; }
 
     public virtual DbSet<DrugsDictionary> DrugsDictionaries { get; set; }
@@ -44,6 +46,35 @@ public partial class iCAREDBContext : IdentityDbContext<iCAREUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+
+        modelBuilder.Entity<Document>(entity =>
+        {
+            entity.ToTable("Document");
+
+            entity.Property(e => e.Id)
+                .ValueGeneratedNever()
+                .HasColumnName("ID");
+            entity.Property(e => e.CreationDate).HasColumnName("creationDate");
+            entity.Property(e => e.DocumentName)
+                .HasMaxLength(100)
+                .IsUnicode(false)
+                .HasColumnName("documentName");
+            entity.Property(e => e.Html)
+                .IsUnicode(false)
+                .HasColumnName("html");
+            entity.Property(e => e.PatientId).HasColumnName("patientID");
+            entity.Property(e => e.WorkerId).HasColumnName("workerID");
+
+            //entity.HasOne(d => d.IdNavigation).WithOne(p => p.Document)
+            //    .HasForeignKey<Document>(d => d.Id)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK_Document_iCAREWorkers");
+
+            //entity.HasOne(d => d.Id1).WithOne(p => p.Document)
+            //    .HasForeignKey<Document>(d => d.Id)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK_Document_PatientRecord");
+        });
 
         modelBuilder.Entity<DocumentMetadatum>(entity =>
         {
