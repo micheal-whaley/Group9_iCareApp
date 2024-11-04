@@ -1,0 +1,27 @@
+﻿@model Group9_iCareApp.Models.Document
+@{
+    Document document = (Group9_iCareApp.Models.Document)ViewData["Document"];
+    var pdfString = (string)ViewData["PdfString"];
+}
+
+<h1> View Documents</h1>
+
+
+@if (document != null)
+{
+    <object data='@Url.Action("ViewPdf", "ManageDocument")' width="100%" height="600px" name=@document.DocumentName></object>
+    <iframe src="/uploads/Addison's 10-24-24.pdf" width="100%" height="600px"></iframe>
+    <iframe src="" width="1000px" height="1500px"></iframe>
+
+    <object data='<%= Url.Action("ViewPdf") %>' type="application/pdf" width="300" height="200">
+
+    </object>
+
+}
+else
+{
+    <h3>Sorry!</h3>
+    <p>The document you are trying to view cannot be found.</p>
+}
+
+

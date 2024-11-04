@@ -49,31 +49,29 @@ public partial class iCAREDBContext : IdentityDbContext<iCAREUser>
 
         modelBuilder.Entity<Document>(entity =>
         {
+            entity.HasKey(e => e.DocumentName);
+
             entity.ToTable("Document");
 
-            entity.Property(e => e.Id)
-                //.ValueGeneratedNever()
-                .HasColumnName("ID");
-            entity.Property(e => e.CreationDate).HasColumnName("creationDate");
             entity.Property(e => e.DocumentName)
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("documentName");
-            entity.Property(e => e.Html)
-                .IsUnicode(false)
-                .HasColumnName("html");
+            entity.Property(e => e.CreationDate).HasColumnName("creationDate");
+            entity.Property(e => e.Data).HasColumnName("data");
+            entity.Property(e => e.Id)
+                .ValueGeneratedOnAdd()
+                .HasColumnName("ID");
             entity.Property(e => e.PatientId).HasColumnName("patientID");
             entity.Property(e => e.WorkerId).HasColumnName("workerID");
 
-            //entity.HasOne(d => d.IdNavigation).WithOne(p => p.Document)
-            //    .HasForeignKey<Document>(d => d.Id)
-            //    .OnDelete(DeleteBehavior.ClientSetNull)
-            //    .HasConstraintName("FK_Document_iCAREWorkers");
-
-            //entity.HasOne(d => d.Id1).WithOne(p => p.Document)
-            //    .HasForeignKey<Document>(d => d.Id)
-            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //entity.HasOne(d => d.Patient).WithMany(p => p.Documents)
+            //    .HasForeignKey(d => d.PatientId)
             //    .HasConstraintName("FK_Document_PatientRecord");
+
+            //entity.HasOne(d => d.Worker).WithMany(p => p.Documents)
+            //    .HasForeignKey(d => d.WorkerId)
+            //    .HasConstraintName("FK_Document_iCAREWorkers");
         });
 
         modelBuilder.Entity<DocumentMetadatum>(entity =>

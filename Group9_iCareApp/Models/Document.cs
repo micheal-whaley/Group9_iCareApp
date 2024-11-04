@@ -7,7 +7,7 @@ public partial class Document
 {
     public int Id { get; set; }
 
-    public string Html { get; set; } = null!;
+    public byte[] Data { get; set; } = null!;
 
     public int? PatientId { get; set; }
 

@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Web;
-using System.IO;
-using IronPdf;
-using Group9_iCareApp.Models;
-using Group9_iCareApp.Services;
+﻿using Group9_iCareApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using Aspose.Words;
 
 namespace Group9_iCareApp.Controllers
 {
@@ -14,14 +8,14 @@ namespace Group9_iCareApp.Controllers
     {
 
         private readonly iCAREDBContext _context = new();
-        private PDFConverter _converter = new();
 
-        private string[] permittedFileExtensions = { ".png",".jpg", ".pdf" };
+        private readonly string[] imageExtensions = { ".png", ".jpg", ".jpeg" };
+        private readonly string[] docExtensions = { ".doc", ".docx" };
+        private readonly string[] pdfExtensions = { ".pdf" };
+        private readonly string[] permittedExtensions = { ".png", ".jpg", ".jpeg", ".doc", ".docx", ".pdf" };
+        private readonly string baseFilePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "uploads");
 
-        //public ManageDocumentController(DocContext context)
-        //{
-        //    this._context = context;
-        //}
+
 
         // GET: ManageDocument
         public IActionResult Index()
@@ -83,60 +77,83 @@ namespace Group9_iCareApp.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
-            if (file != null && file.Length > 0) //file.ContentType.Contains()
+            if (file != null && file.Length > 0) //basic file checks
             {
 
+                var fileName = file.FileName;
+                var smallfileName = fileName.Substring(0, fileName.LastIndexOf("."));
 
-
-                // Get file details
-
-                var streamedFileContent = Array.Empty<byte>();
-
-                //using (var memoryStream = new MemoryStream())
-                //{
-                //    await FileUpload.FormFile
-                //}
-                //streamedFileContent = await FileHelpers.
-
-                string fileName = Path.GetFileName(file.FileName);
-                //permittedFileExtensions.Contains()
-                //image.Filename = fileName;
-
-                string filePath = Path.Combine(Directory.GetCurrentDirectory(), "uploads", fileName);
-
-                // Save the file
-                string html;
-
-                using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.None, 4096, FileOptions.DeleteOnClose))
+                if(_context.Documents.Find(smallfileName+".pdf") != null)
                 {
-                    await file.CopyToAsync(stream);
-
-                    PdfDocument pdf = ImageToPdfConverter.ImageToPdf(filePath);
-                    html = pdf.ToHtmlString();
+                    return NoContent(); //file already exists
                 }
+                byte[] bytes = null;
+                foreach (var extension in permittedExtensions)
+                {
+                    if (fileName.LastIndexOf(extension) != -1) //as long as this extension exists
+                    {
+                        string filePath = System.IO.Path.Combine(baseFilePath, fileName);
+                        string pdfFilePath = System.IO.Path.Combine(baseFilePath, smallfileName + ".pdf");
+                        using var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 1000000, FileOptions.None);
+                        
+                        await file.CopyToAsync(stream);
+                        stream.Dispose();
 
-                Document doc = new();
-                doc.DocumentName = fileName;
-                doc.Html = html;
+                        if (imageExtensions.Contains(extension))
+                        {
+                            Aspose.Words.Document doc = new();
+                            var builder = new DocumentBuilder(doc);
+                            builder.InsertImage(filePath); //insert image//
+                            MemoryStream outStream = new();
+                            doc.Save(outStream, SaveFormat.Pdf);
+                            bytes = outStream.ToArray(); //get byte data//
+                            outStream.Dispose(); //free memory
+                        }
+                        else if (docExtensions.Contains(extension))
+                        {
+                            Aspose.Words.Document doc = new(filePath);
+                            MemoryStream outStream = new();
+                            doc.Save(outStream, SaveFormat.Pdf);
+                            bytes = outStream.ToArray();
+                            outStream.Dispose();
+                        }
+                        else if (pdfExtensions.Contains(extension))
+                        {
+                            Aspose.Pdf.Document pdf = new(filePath);
+                            MemoryStream outStream = new();
+                            pdf.Save(outStream);
+                            bytes = outStream.ToArray();
+                            outStream.Dispose();
+                        }
+
+                        System.IO.File.Delete(filePath); //delete temp file
+                        break;
+                    }
+
+                }
+                 
+                if(bytes == null) //if none of the allowed extensions were found.
+                {
+                    return NoContent();
+                }
+                 Group9_iCareApp.Models.Document document = new()
+                {
+                    DocumentName = smallfileName + ".pdf",
+                    Data = bytes
+                };
 
                 if (ModelState.IsValid)
                 {
-                    _context.Documents.Add(doc);
+                    _context.Documents.Add(document);
                     _context.SaveChanges();
                 }
-
-                return Ok(file);
-
-                //{
-
-                //}
-
+                return RedirectToAction("Index");
+                //return RedirectToAction("ViewDocument");
             }
-            return Ok(file);
-            return RedirectToAction("Index");
-
-
+            return NoContent();
+            //return RedirectToAction("Index");
         }
+
         // GET: ManageDocument/Delete/5
         public IActionResult Delete(int id)
         {
@@ -158,5 +175,26 @@ namespace Group9_iCareApp.Controllers
                 return View();
             }
         }
+
+        public IActionResult ViewDocument()
+        {
+            var document = _context.Documents.Find("invoice-INV1.pdf");
+            ViewData["Document"] = document;
+            return View();
+        }
+
+
+        public ActionResult ViewPdf(string fileName)
+        {
+            var document = _context.Documents.Find("invoice-INV1.pdf");
+            if (document == null)
+            {
+                document = _context.Documents.Find("Addison's 10-24-24.pdf");
+            }
+            ViewData["Document"] = document;
+            return File(document.Data, "application/pdf");
+        }
+
     }
+    
 }
