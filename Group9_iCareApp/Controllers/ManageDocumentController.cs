@@ -77,6 +77,7 @@ namespace Group9_iCareApp.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
+            Directory.CreateDirectory(baseFilePath);
             if (file != null && file.Length > 0) //basic file checks
             {
 
