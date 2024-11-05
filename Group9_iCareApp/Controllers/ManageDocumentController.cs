@@ -1,6 +1,7 @@
 ﻿using Group9_iCareApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Aspose.Words;
+using System.IO;
 
 namespace Group9_iCareApp.Controllers
 {
@@ -13,7 +14,7 @@ namespace Group9_iCareApp.Controllers
         private readonly string[] docExtensions = { ".doc", ".docx" };
         private readonly string[] pdfExtensions = { ".pdf" };
         private readonly string[] permittedExtensions = { ".png", ".jpg", ".jpeg", ".doc", ".docx", ".pdf" };
-        private readonly string baseFilePath = System.IO.Path.Combine(Directory.GetCurrentDirectory(), "uploads");
+        private readonly string baseFilePath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
 
 
 
@@ -74,18 +75,81 @@ namespace Group9_iCareApp.Controllers
         //}
 
 
+
+
+        //// GET: ManageDocument/Delete/5
+        //public IActionResult Delete(int id)
+        //{
+        //    return View();
+        //}
+
+        //// POST: ManageDocument/Delete/5
+        //[HttpPost]
+        //public IActionResult Delete(int id, FormCollection collection)
+        //{
+        //    try
+        //    {
+        //        // TODO: Add delete logic here
+
+        //        return RedirectToAction("Index");
+        //    }
+        //    catch
+        //    {
+        //        return View();
+        //    }
+        //}
+
+        [HttpGet]
+        public ActionResult Palette()
+        {
+            return View(db.Documents.ToList());
+        }
+
+        public ActionResult CreateDocument()
+        {
+            return View();
+        }
+
+        public IActionResult ViewDocument(string fileName)
+        {
+            var document = db.Documents.Find(fileName);
+            ViewData["Document"] = document;
+            return View();
+        }
+
+
+        public ActionResult ViewPdf(string fileName)
+        {
+            var document = db.Documents.Find(fileName);
+            if (document == null)
+            {
+                return NotFound();
+            }
+            return File(document.Data, "application/pdf");
+        }
+
+        
+
+        public ActionResult UploadDocument()
+        {
+            ViewData["error"] = ""; //just want it to not be null
+            return View();
+        }
+
         [HttpPost]
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
-            Directory.CreateDirectory(baseFilePath);
+            
             if (file != null && file.Length > 0) //basic file checks
             {
 
                 var fileName = file.FileName;
-                var smallfileName = fileName.Substring(0, fileName.LastIndexOf("."));
+                var startIndex = 0;
+                var smallfileName = fileName.Substring(startIndex, fileName.LastIndexOf('.'));
 
-                if(db.Documents.Find(smallfileName+".pdf") != null)
+                if (db.Documents.Find(smallfileName + ".pdf") != null)
                 {
+                    ViewData["error"] = "repeat";
                     return NoContent(); //file already exists
                 }
                 byte[] bytes = null;
@@ -93,10 +157,11 @@ namespace Group9_iCareApp.Controllers
                 {
                     if (fileName.LastIndexOf(extension) != -1) //as long as this extension exists
                     {
-                        string filePath = System.IO.Path.Combine(baseFilePath, fileName);
-                        string pdfFilePath = System.IO.Path.Combine(baseFilePath, smallfileName + ".pdf");
+                        Directory.CreateDirectory(baseFilePath);
+                        string filePath = Path.Combine(baseFilePath, fileName);
+                        string pdfFilePath = Path.Combine(baseFilePath, smallfileName + ".pdf");
                         using var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 1000000, FileOptions.None);
-                        
+
                         await file.CopyToAsync(stream);
                         stream.Dispose();
 
@@ -128,16 +193,15 @@ namespace Group9_iCareApp.Controllers
                         }
 
                         System.IO.File.Delete(filePath); //delete temp file
+                        Directory.Delete(baseFilePath); //deleet temp directory
                         break;
                     }
-
                 }
-                 
-                if(bytes == null) //if none of the allowed extensions were found.
+                if (bytes == null) //if none of the allowed extensions were found.
                 {
                     return NoContent();
                 }
-                 Group9_iCareApp.Models.Document document = new()
+                Group9_iCareApp.Models.Document document = new()
                 {
                     DocumentName = smallfileName + ".pdf",
                     Data = bytes
@@ -148,67 +212,10 @@ namespace Group9_iCareApp.Controllers
                     db.Documents.Add(document);
                     db.SaveChanges();
                 }
-                return RedirectToAction("Index");
-                //return RedirectToAction("ViewDocument");
+                return RedirectToAction("UploadDocument");
             }
             return NoContent();
-            //return RedirectToAction("Index");
         }
-
-        //// GET: ManageDocument/Delete/5
-        //public IActionResult Delete(int id)
-        //{
-        //    return View();
-        //}
-
-        //// POST: ManageDocument/Delete/5
-        //[HttpPost]
-        //public IActionResult Delete(int id, FormCollection collection)
-        //{
-        //    try
-        //    {
-        //        // TODO: Add delete logic here
-
-        //        return RedirectToAction("Index");
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
-
-        public IActionResult ViewDocument(string fileName)
-        {
-            var document = db.Documents.Find(fileName);
-            ViewData["Document"] = document;
-            return View();
-        }
-
-
-        public ActionResult ViewPdf(string fileName)
-        {
-            var document = db.Documents.Find(fileName);
-            if (document == null)
-            {
-                return NotFound();
-            }
-            return File(document.Data, "application/pdf");
-        }
-
-        public ActionResult Palette()
-        {
-            return View(db.Documents.ToList());
-        }
-
-        public ActionResult UploadDocument()
-        {
-            return View();
-        }
-
-        public ActionResult CreateDocument()
-        {
-            return View();
-        }
-    }
-    
+        
+    }  
 }
