@@ -13,7 +13,7 @@ public partial class iCAREUser : IdentityUser
 
     public string? Lname { get; set; }
 
-
+    public int Priveleged { get; set; } = 0;
 
     public int locationID { get; set; }
 

@@ -11,15 +11,12 @@ public partial class iCAREDBContext : IdentityDbContext<iCAREUser>
     {
     }
 
-    public string connectionString { get; } = "Data Source=KHURAMACER\\CS_4320_SERVER;Initial Catalog=Group9_iCareDB;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
+    public string connectionString { get; } = "Data Source=localhost\\MSSQLSERVER01;Initial Catalog=Group9_iCareDB;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
 
     public virtual DbSet<Document> Documents { get; set; }
     public virtual DbSet<DocumentMetadatum> DocumentMetadata { get; set; }
 
     public virtual DbSet<DrugsDictionary> DrugsDictionaries { get; set; }
-
-
-    public virtual DbSet<iCAREAdmin> iCAREAdmins { get; set; }
 
     public virtual DbSet<iCAREUser> iCAREUsers { get; set; }
 
@@ -99,22 +96,6 @@ public partial class iCAREDBContext : IdentityDbContext<iCAREUser>
             entity.Property(e => e.Description).IsUnicode(false);
             entity.Property(e => e.Name).IsUnicode(false);
         });
-
-        //modelBuilder.Entity<iCAREAdmin>(entity =>
-        //{
-        //    entity.HasKey(e => e.Id).HasName("PK__iCAREAdm__3214EC273905C464");
-
-        //    entity.ToTable("iCAREAdmin");
-
-        //    entity.Property(e => e.Id)
-        //        //.ValueGeneratedNever()
-        //        .HasColumnName("ID");
-
-        //    entity.HasOne(d => d.IdNavigation).WithOne(p => p.ICareadmin)
-        //        .HasForeignKey<iCAREAdmin>(d => d.Id)
-        //        .OnDelete(DeleteBehavior.ClientSetNull)
-        //        .HasConstraintName("FK__iCAREAdmin__ID__3C69FB99");
-        //});
 
         modelBuilder.Entity<iCAREUser>(entity =>
         {

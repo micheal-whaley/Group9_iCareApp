@@ -9,7 +9,8 @@ public partial class iCAREWorker
 
     public string Profession { get; set; } = null!;
 
-    public virtual iCAREUser IdNavigation { get; set; } = null!;
+    public string UserAccount { get; set; } = null!;
+    public virtual iCAREUser AccountNavigation { get; set; } = null!;
 
     public virtual ICollection<ModificationHistory> ModificationHistories { get; set; } = new List<ModificationHistory>();
 
