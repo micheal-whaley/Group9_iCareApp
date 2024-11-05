@@ -1,4 +1,13 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<iCAREUser> SignInManager
+@inject UserManager<iCAREUser> UserManager
+@inject iCAREDBContext DBContext
+@{
+    string userID = UserManager.GetUserId(User) ?? string.Empty;
+    int isAdmin = DBContext.iCAREUsers.Find(userID)?.Priveleged ?? 0;
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -19,9 +28,27 @@
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
-                        <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
-                        </li>
+                        @if (SignInManager.IsSignedIn(User))
+                        {
+                            @if (isAdmin == 0)
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a id="Palette" class="nav-link text-dark" asp-area="" asp-controller="ManageDocument" asp-action="Palette" title="MyPalette">Palette</a>
+                                </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a id="manageWorkers" class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Manage" title="Manage Workers">Manage Workers</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a id="addWorkers" class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Create" title="Add Workers">Add Workers</a>
+                                </li>
+                            }
+                        }
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
