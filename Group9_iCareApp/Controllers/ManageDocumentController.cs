@@ -177,9 +177,9 @@ namespace Group9_iCareApp.Controllers
             }
         }
 
-        public IActionResult ViewDocument()
+        public IActionResult ViewDocument(string fileName)
         {
-            var document = _context.Documents.Find("invoice-INV1.pdf");
+            var document = _context.Documents.Find(fileName);
             ViewData["Document"] = document;
             return View();
         }
@@ -187,13 +187,17 @@ namespace Group9_iCareApp.Controllers
 
         public ActionResult ViewPdf(string fileName)
         {
-            var document = _context.Documents.Find("invoice-INV1.pdf");
+            var document = _context.Documents.Find(fileName);
             if (document == null)
             {
-                document = _context.Documents.Find("Addison's 10-24-24.pdf");
+                return NotFound();
             }
-            ViewData["Document"] = document;
             return File(document.Data, "application/pdf");
+        }
+
+        public ActionResult Palette()
+        {
+            return View(_context.Documents.ToList());
         }
 
     }

@@ -1,0 +1,24 @@
+﻿@model IEnumerable<Group9_iCareApp.Models.Document>
+
+
+
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.DocumentName)
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.DocumentName)
+            </td>
+            <td>
+                @Html.ActionLink("View", "ViewDocument", "ManageDocument", new { fileName = item.DocumentName })
+            </td>
+        </tr>
+    }
+</table>

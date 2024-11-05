@@ -1,7 +1,6 @@
 ﻿@model Group9_iCareApp.Models.Document
 @{
     Document document = (Group9_iCareApp.Models.Document)ViewData["Document"];
-    var pdfString = (string)ViewData["PdfString"];
 }
 
 <h1> View Documents</h1>
@@ -9,7 +8,7 @@
 
 @if (document != null)
 {
-    <object data='@Url.Action("ViewPdf", "ManageDocument")' width="100%" height="600px" name=@document.DocumentName></object>
+    <object data='@Url.Action("ViewPdf", "ManageDocument", new {fileName = document.DocumentName})' width="100%" height="600px" name=@document.DocumentName></object>
 }
 else
 {
