@@ -7,7 +7,7 @@ namespace Group9_iCareApp.Controllers
     public class ManageDocumentController : Controller
     {
 
-        private readonly iCAREDBContext _context = new();
+        private readonly iCAREDBContext db = new();
 
         private readonly string[] imageExtensions = { ".png", ".jpg", ".jpeg" };
         private readonly string[] docExtensions = { ".doc", ".docx" };
@@ -20,58 +20,58 @@ namespace Group9_iCareApp.Controllers
         // GET: ManageDocument
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Palette");
         }
 
         // GET: ManageDocument/Details/5
-        public IActionResult Details(int id)
-        {
-            return View();
-        }
+        //public IActionResult Details(int id)
+        //{
+        //    return View();
+        //}
 
-        // GET: ManageDocument/Create
-        public IActionResult Create()
-        {
-            return View();
-        }
+        //// GET: ManageDocument/Create
+        //public IActionResult Create()
+        //{
+        //    return View();
+        //}
 
         // POST: ManageDocument/Create
         [HttpPost]
-        public IActionResult Create(FormCollection collection)
-        {
-            try
-            {
-                // TODO: Add insert logic here
+        //public IActionResult Create(FormCollection collection)
+        //{
+        //    try
+        //    {
+        //        // TODO: Add insert logic here
 
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        //        return RedirectToAction("Index");
+        //    }
+        //    catch
+        //    {
+        //        return View();
+        //    }
+        //}
 
-        // GET: ManageDocument/Edit/5
-        public IActionResult Edit(int id)
-        {
-            return View();
-        }
+        //// GET: ManageDocument/Edit/5
+        //public IActionResult Edit(int id)
+        //{
+        //    return View();
+        //}
 
-        // POST: ManageDocument/Edit/5
-        [HttpPost]
-        public IActionResult Edit(int id, FormCollection collection)
-        {
-            try
-            {
-                // TODO: Add update logic here
+        //// POST: ManageDocument/Edit/5
+        //[HttpPost]
+        //public IActionResult Edit(int id, FormCollection collection)
+        //{
+        //    try
+        //    {
+        //        // TODO: Add update logic here
 
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        //        return RedirectToAction("Index");
+        //    }
+        //    catch
+        //    {
+        //        return View();
+        //    }
+        //}
 
 
         [HttpPost]
@@ -84,7 +84,7 @@ namespace Group9_iCareApp.Controllers
                 var fileName = file.FileName;
                 var smallfileName = fileName.Substring(0, fileName.LastIndexOf("."));
 
-                if(_context.Documents.Find(smallfileName+".pdf") != null)
+                if(db.Documents.Find(smallfileName+".pdf") != null)
                 {
                     return NoContent(); //file already exists
                 }
@@ -145,8 +145,8 @@ namespace Group9_iCareApp.Controllers
 
                 if (ModelState.IsValid)
                 {
-                    _context.Documents.Add(document);
-                    _context.SaveChanges();
+                    db.Documents.Add(document);
+                    db.SaveChanges();
                 }
                 return RedirectToAction("Index");
                 //return RedirectToAction("ViewDocument");
@@ -155,31 +155,31 @@ namespace Group9_iCareApp.Controllers
             //return RedirectToAction("Index");
         }
 
-        // GET: ManageDocument/Delete/5
-        public IActionResult Delete(int id)
-        {
-            return View();
-        }
+        //// GET: ManageDocument/Delete/5
+        //public IActionResult Delete(int id)
+        //{
+        //    return View();
+        //}
 
-        // POST: ManageDocument/Delete/5
-        [HttpPost]
-        public IActionResult Delete(int id, FormCollection collection)
-        {
-            try
-            {
-                // TODO: Add delete logic here
+        //// POST: ManageDocument/Delete/5
+        //[HttpPost]
+        //public IActionResult Delete(int id, FormCollection collection)
+        //{
+        //    try
+        //    {
+        //        // TODO: Add delete logic here
 
-                return RedirectToAction("Index");
-            }
-            catch
-            {
-                return View();
-            }
-        }
+        //        return RedirectToAction("Index");
+        //    }
+        //    catch
+        //    {
+        //        return View();
+        //    }
+        //}
 
         public IActionResult ViewDocument(string fileName)
         {
-            var document = _context.Documents.Find(fileName);
+            var document = db.Documents.Find(fileName);
             ViewData["Document"] = document;
             return View();
         }
@@ -187,7 +187,7 @@ namespace Group9_iCareApp.Controllers
 
         public ActionResult ViewPdf(string fileName)
         {
-            var document = _context.Documents.Find(fileName);
+            var document = db.Documents.Find(fileName);
             if (document == null)
             {
                 return NotFound();
@@ -197,9 +197,18 @@ namespace Group9_iCareApp.Controllers
 
         public ActionResult Palette()
         {
-            return View(_context.Documents.ToList());
+            return View(db.Documents.ToList());
         }
 
+        public ActionResult UploadDocument()
+        {
+            return View();
+        }
+
+        public ActionResult CreateDocument()
+        {
+            return View();
+        }
     }
     
 }
