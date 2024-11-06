@@ -1,0 +1,69 @@
+﻿@model Group9_iCareApp.Models.Document
+@{
+    Document document = (Document)ViewData["Document"];
+    string htmlString = (string)ViewData["htmlString"];
+    bool editOldDoc = (bool)ViewData["editOldDoc"];
+}
+
+<div class="text-center">
+    <h1 class="display-4">@((editOldDoc ? "Edit Document" : "Create Document") + ": " + document.DocumentName)</h1>
+</div>
+
+<div asp-validation-summary="All" class="text-danger"></div>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@(editOldDoc ? "Edit Document" : "Create Document")</title>
+    <link rel="stylesheet" href="../../assets/vendor/ckeditor5/ckeditor5.css">
+    <style>
+        .main-container {
+            width: 795px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+    </style>
+</head>
+<body>
+    <form asp-controller="ManageDocument" asp-action="@(editOldDoc ? "SaveOldDocument" : "SaveNewDocument")" method="post">
+        <div class="main-container">
+            <!-- Display document name input if in create mode -->
+            @if (!editOldDoc)
+            {
+                <div class="form-group">
+                    <label for="docName">Document Name</label>
+                    <input type="text" name="docName" class="form-control" id="docName" placeholder="Enter document name here"/>
+                </div>
+            }
+            else
+            {
+                <input type="hidden" name="docName" value="@document.DocumentName" />
+            }
+
+            <!-- Editor with HTML content or empty for new documents -->
+            <div class="editor-container editor-container_classic-editor" id="editor-container">
+                <div class="editor-container__editor">
+                    <textarea name="content" id="editor">
+                        @Html.Raw(htmlString)
+                    </textarea>
+                </div>
+                <p><input type="submit" value="Submit to Database" class="btn btn-primary"></p>
+            </div>
+        </div>
+        <!-- Hidden field to pass the editOldDoc flag to the controller -->
+        <input type="hidden" name="editOldDoc" value="@editOldDoc" />
+    </form>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "ckeditor5": "../../assets/vendor/ckeditor5/ckeditor5.js",
+                "ckeditor5/": "../../assets/vendor/ckeditor5/",
+                "ckeditor5-premium-features": "../../assets/vendor/ckeditor5-premium-features/ckeditor5-premium-features.js",
+                "ckeditor5-premium-features/": "../../assets/vendor/ckeditor5-premium-features/"
+            }
+        }
+    </script>
+    <script type="module" src="../../assets/vendor/main.js"></script>
+</body>
+</html>

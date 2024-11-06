@@ -1,7 +1,6 @@
 ﻿using Group9_iCareApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Aspose.Words;
-using System.IO;
 
 namespace Group9_iCareApp.Controllers
 {
@@ -9,12 +8,7 @@ namespace Group9_iCareApp.Controllers
     {
 
         private readonly iCAREDBContext db = new();
-
-        private readonly string[] imageExtensions = { ".png", ".jpg", ".jpeg" };
-        private readonly string[] docExtensions = { ".doc", ".docx" };
-        private readonly string[] pdfExtensions = { ".pdf" };
         private readonly string[] permittedExtensions = { ".png", ".jpg", ".jpeg", ".doc", ".docx", ".pdf" };
-        private readonly string baseFilePath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
 
 
 
@@ -105,26 +99,117 @@ namespace Group9_iCareApp.Controllers
             return View(db.Documents.ToList());
         }
 
+        public ActionResult ManageDocument()
+        {
+            return RedirectToAction("CreateDocument"); //if someone tries to access directly, just do as if it's a new document.
+        }
         public ActionResult CreateDocument()
         {
-            return View();
+            ViewData["Document"] = new Group9_iCareApp.Models.Document();
+            ViewData["htmlString"] = string.Empty; //empty for new document//
+            ViewData["editOldDoc"] = false;
+            return View("ManageDocument");
+        }
+
+        public ActionResult EditDocument(string fileName)
+        {
+            var document = db.Documents.Find(fileName);
+            if (document == null)
+            {
+                TempData["ErrorMessage"] = "Document not found";
+                return RedirectToAction("UploadDocument"); //displays error message
+                //change this
+            }
+            var htmlString = ConvertPdfToHtml(document.Data);
+            ViewData["Document"] = document;
+            ViewData["htmlString"] = htmlString;
+            ViewData["editOldDoc"] = true;
+            return View("ManageDocument");
         }
 
         [HttpPost]
-        public ActionResult SaveDocument(string content, string docName)
+        public ActionResult SaveDocument(string content, string docName, bool editOldDoc)
+        {
+            if (ModelState.IsValid)
+            {
+                db.SaveChanges();
+            }
+            // Validate input
+            if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName))
+            {
+                return NoContent();
+            }
+
+            // Check if creating a new document and if the document name already exists
+            if (!editOldDoc && db.Documents.Find(docName + ".pdf") != null)
+            {
+                // Document with the same name already exists
+                return NoContent();
+            }
+
+            // Convert HTML content to PDF
+            Aspose.Words.Document doc = new();
+            var builder = new DocumentBuilder(doc);
+            builder.InsertHtml(content);
+            using MemoryStream outStream = new();
+            doc.Save(outStream, SaveFormat.Pdf);
+            byte[] bytes = outStream.ToArray();
+
+            if (ModelState.IsValid)
+            {
+                db.SaveChanges();
+            }
+
+            // Handle document saving/updating based on edit mode
+            //Group9_iCareApp.Models.Document document;
+            if (editOldDoc)
+            {
+                var document = db.Documents.Find(docName);
+                if (document == null) return NoContent(); // Ensure document exists before updating
+                if (ModelState.IsValid)
+                {
+                    document.Data = bytes;
+                    db.SaveChanges();
+                }
+                document.Data = bytes;
+            }
+            else
+            {
+                var document = new Group9_iCareApp.Models.Document
+                {
+                    DocumentName = docName + ".pdf",
+                    Data = bytes
+                };
+                if (ModelState.IsValid)
+                {
+                    db.Documents.Add(document);
+                    db.SaveChanges();
+                }
+            }
+            // Save changes
+            
+
+            return RedirectToAction("ManageDocument");
+        }
+
+
+        [HttpPost]
+        public ActionResult SaveNewDocument(string content, string docName)
         {
             if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName) || db.Documents.Find(docName + ".pdf") != null) //if already exists
             {
                 //nothing in doc, nothing in docName, or doc already exists.
                 return NoContent();
             }
+
+            // Convert HTML content to PDF
             Aspose.Words.Document doc = new();
             var builder = new DocumentBuilder(doc);
             builder.InsertHtml(content);
-            MemoryStream outStream = new();
+            using MemoryStream outStream = new();
             doc.Save(outStream, SaveFormat.Pdf);
-            byte[] bytes = outStream.ToArray(); //get byte data//
-            outStream.Dispose(); //free memory
+            byte[] bytes = outStream.ToArray();
+
             Group9_iCareApp.Models.Document document = new()
             {
                 DocumentName = docName + ".pdf",
@@ -139,31 +224,7 @@ namespace Group9_iCareApp.Controllers
             return RedirectToAction("Palette");
         }
 
-        public ActionResult EditDocument(string fileName)
-        {
-            var options = new Aspose.Pdf.HtmlSaveOptions
-            {
-                FixedLayout = true,
-                PartsEmbeddingMode = Aspose.Pdf.HtmlSaveOptions.PartsEmbeddingModes.EmbedAllIntoHtml, // Embed all CSS and resources
-                RasterImagesSavingMode = Aspose.Pdf.HtmlSaveOptions.RasterImagesSavingModes.AsEmbeddedPartsOfPngPageBackground
-            };
-            var document = db.Documents.Find(fileName);
-            if (document == null)
-            {
-                return NoContent();
-            }
-            ViewData["Document"] = document;
-            using (var pdfStream = new MemoryStream(document.Data))
-            using (var htmlStream = new MemoryStream())
-            {
-                Aspose.Pdf.Document pdf = new(pdfStream);
-                pdf.Save(htmlStream,options);
-                ViewData["htmlString"] = System.Text.Encoding.UTF8.GetString(htmlStream.ToArray());
-            }
-                
-
-            return View();
-        }
+        
 
         
 
@@ -175,13 +236,14 @@ namespace Group9_iCareApp.Controllers
                 //nothing in doc, nothing in docName.
                 return NoContent();
             }
+
             Aspose.Words.Document doc = new();
             var builder = new DocumentBuilder(doc);
             builder.InsertHtml(content);
-            MemoryStream outStream = new();
+            using MemoryStream outStream = new();
             doc.Save(outStream, SaveFormat.Pdf);
-            byte[] bytes = outStream.ToArray(); //get byte data//
-            outStream.Dispose(); //free memory
+            byte[] bytes = outStream.ToArray();
+
             Group9_iCareApp.Models.Document document = db.Documents.Find(docName);
 
             if (ModelState.IsValid)
@@ -203,10 +265,6 @@ namespace Group9_iCareApp.Controllers
         public ActionResult ViewPdf(string fileName)
         {
             var document = db.Documents.Find(fileName);
-            if (document == null)
-            {
-                return NotFound();
-            }
             return File(document.Data, "application/pdf");
         }
 
@@ -221,83 +279,106 @@ namespace Group9_iCareApp.Controllers
         [HttpPost]
         public async Task<IActionResult> UploadFile(IFormFile file)
         {
-            
-            if (file != null && file.Length > 0) //basic file checks
+            if (file == null || file.Length == 0) 
             {
-
-                var fileName = file.FileName;
-                var startIndex = 0;
-                var smallfileName = fileName.Substring(startIndex, fileName.LastIndexOf('.'));
-
-                if (db.Documents.Find(smallfileName + ".pdf") != null)
-                {
-                    ViewData["error"] = "repeat";
-                    return NoContent(); //file already exists
-                }
-                byte[] bytes = null;
-                foreach (var extension in permittedExtensions)
-                {
-                    if (fileName.LastIndexOf(extension) != -1) //as long as this extension exists
-                    {
-                        Directory.CreateDirectory(baseFilePath);
-                        string filePath = Path.Combine(baseFilePath, fileName);
-                        string pdfFilePath = Path.Combine(baseFilePath, smallfileName + ".pdf");
-                        using var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 1000000, FileOptions.None);
-                        
-                        await file.CopyToAsync(stream);
-                        stream.Dispose();
-
-                        if (imageExtensions.Contains(extension))
-                        {
-                            Aspose.Words.Document doc = new();
-                            var builder = new DocumentBuilder(doc);
-                            builder.InsertImage(filePath); //insert image//
-                            MemoryStream outStream = new();
-                            doc.Save(outStream, SaveFormat.Pdf);
-                            bytes = outStream.ToArray(); //get byte data//
-                            outStream.Dispose(); //free memory
-                        }
-                        else if (docExtensions.Contains(extension))
-                        {
-                            Aspose.Words.Document doc = new(filePath);
-                            MemoryStream outStream = new();
-                            doc.Save(outStream, SaveFormat.Pdf);
-                            bytes = outStream.ToArray();
-                            outStream.Dispose();
-                        }
-                        else if (pdfExtensions.Contains(extension))
-                        {
-                            Aspose.Pdf.Document pdf = new(filePath);
-                            MemoryStream outStream = new();
-                            pdf.Save(outStream);
-                            bytes = outStream.ToArray();
-                            outStream.Dispose();
-                        }
-
-                        System.IO.File.Delete(filePath); //delete temp file
-                        Directory.Delete(baseFilePath); //deleet temp directory
-                        break;
-                    }
-                }
-                if (bytes == null) //if none of the allowed extensions were found.
-                {
-                    return NoContent();
-                }
-                Group9_iCareApp.Models.Document document = new()
-                {
-                    DocumentName = smallfileName + ".pdf",
-                    Data = bytes
-                };
-
-                if (ModelState.IsValid)
-                {
-                    db.Documents.Add(document);
-                    db.SaveChanges();
-                }
-                return RedirectToAction("UploadDocument");
+                TempData["ErrorMessage"] = "Please select a file to upload.";
+                return RedirectToAction("UploadDocument"); //File not uploaded.
             }
-            return NoContent();
+
+            var fileNameNoExtension = Path.GetFileNameWithoutExtension(file.FileName);
+            var fileExtension = Path.GetExtension(file.FileName).ToLower();
+
+            if (db.Documents.Find(fileNameNoExtension + ".pdf") != null)
+            {
+                TempData["ErrorMessage"] = "File with that name already exists in the database. Please upload a valid file.";
+                return RedirectToAction("UploadDocument"); //File already exists.
+            }
+            if (!permittedExtensions.Contains(fileExtension))
+            {
+                TempData["ErrorMessage"] = "File type is not supported. Please upload a valid file.";
+                return RedirectToAction("UploadDocument"); //Extension not allowed.
+            }
+
+            byte[] pdfBytes;
+            using (var stream = new MemoryStream())
+            {
+                await file.CopyToAsync(stream);
+                pdfBytes = fileExtension switch
+                {
+                    ".png" or ".jpg" or ".jpeg" => ConvertImageToPdf(stream),
+                    ".doc" or ".docx" => ConvertWordToPdf(stream),
+                    ".pdf" => ConvertPdfToBytes(stream),
+                    _ => null
+                };
+            }
+
+            if(pdfBytes == null)
+            {
+                TempData["ErrorMessage"] = "Failed to process the file. Please try again.";
+                return RedirectToAction("UploadDocument"); //This should never happen, but just in case.
+            }
+
+            Group9_iCareApp.Models.Document document = new()
+            {
+                DocumentName = fileNameNoExtension + ".pdf",
+                Data = pdfBytes
+            };
+
+            if (ModelState.IsValid)
+            {
+                db.Documents.Add(document);
+                db.SaveChanges();
+                TempData["SuccessMessage"] = "Document uploaded successfully!";
+            }else
+            { 
+                TempData["ErrorMessage"] = "Failed to upload the document. Please check the file and try again.";
+            }
+            return RedirectToAction("UploadDocument");
         }
-        
+
+        private static string ConvertPdfToHtml(byte[] pdfData)
+        {
+            var options = new Aspose.Pdf.HtmlSaveOptions
+            {
+                FixedLayout = true,
+                PartsEmbeddingMode = Aspose.Pdf.HtmlSaveOptions.PartsEmbeddingModes.EmbedAllIntoHtml,
+                RasterImagesSavingMode = Aspose.Pdf.HtmlSaveOptions.RasterImagesSavingModes.AsEmbeddedPartsOfPngPageBackground
+            };
+
+            using var pdfStream = new MemoryStream(pdfData);
+            using var htmlStream = new MemoryStream();
+            var pdf = new Aspose.Pdf.Document(pdfStream);
+            pdf.Save(htmlStream, options);
+            return System.Text.Encoding.UTF8.GetString(htmlStream.ToArray());
+        }
+        private static byte[] ConvertImageToPdf(Stream imageStream)
+        {
+            Aspose.Words.Document doc = new();
+            var builder = new DocumentBuilder(doc);
+            builder.InsertImage(imageStream); //insert image//
+
+            using var outStream = new MemoryStream();
+            doc.Save(outStream, SaveFormat.Pdf); //turn into PDF 
+            return outStream.ToArray(); 
+        }
+
+        private static byte[] ConvertWordToPdf(Stream wordStream)
+        {
+            Aspose.Words.Document doc = new(wordStream);
+
+            using var outStream = new MemoryStream();
+            doc.Save(outStream, SaveFormat.Pdf); //turn into PDF
+            return outStream.ToArray();
+        }
+
+        private static byte[] ConvertPdfToBytes(Stream pdfStream)
+        {
+            Aspose.Pdf.Document pdf = new(pdfStream);
+
+            using var outStream = new MemoryStream();
+            pdf.Save(outStream);
+            return outStream.ToArray();
+
+        }
     }  
 }
