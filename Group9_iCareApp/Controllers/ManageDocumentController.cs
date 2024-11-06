@@ -110,6 +110,35 @@ namespace Group9_iCareApp.Controllers
             return View();
         }
 
+        [HttpPost]
+        public ActionResult SaveDocument(string content,string docName)
+        {
+            if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName) || db.Documents.Find(docName + ".pdf") != null) //if already exists
+            {
+                //nothing in doc, nothing in docName, or doc already exists.
+                return NoContent();
+            }
+            Aspose.Words.Document doc = new();
+            var builder = new DocumentBuilder(doc);
+            builder.InsertHtml(content);
+            MemoryStream outStream = new();
+            doc.Save(outStream, SaveFormat.Pdf);
+            byte[] bytes = outStream.ToArray(); //get byte data//
+            outStream.Dispose(); //free memory
+            Group9_iCareApp.Models.Document document = new()
+            {
+                DocumentName = docName + ".pdf",
+                Data = bytes
+            };
+
+            if (ModelState.IsValid)
+            {
+                db.Documents.Add(document);
+                db.SaveChanges();
+            }
+            return RedirectToAction("CreateDocument");
+        }
+
         public IActionResult ViewDocument(string fileName)
         {
             var document = db.Documents.Find(fileName);
@@ -161,7 +190,7 @@ namespace Group9_iCareApp.Controllers
                         string filePath = Path.Combine(baseFilePath, fileName);
                         string pdfFilePath = Path.Combine(baseFilePath, smallfileName + ".pdf");
                         using var stream = new FileStream(filePath, FileMode.Create, FileAccess.ReadWrite, FileShare.Read, 1000000, FileOptions.None);
-
+                        
                         await file.CopyToAsync(stream);
                         stream.Dispose();
 
