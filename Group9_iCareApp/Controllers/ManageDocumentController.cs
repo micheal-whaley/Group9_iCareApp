@@ -111,7 +111,7 @@ namespace Group9_iCareApp.Controllers
         }
 
         [HttpPost]
-        public ActionResult SaveDocument(string content,string docName)
+        public ActionResult SaveDocument(string content, string docName)
         {
             if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName) || db.Documents.Find(docName + ".pdf") != null) //if already exists
             {
@@ -136,7 +136,60 @@ namespace Group9_iCareApp.Controllers
                 db.Documents.Add(document);
                 db.SaveChanges();
             }
-            return RedirectToAction("CreateDocument");
+            return RedirectToAction("Palette");
+        }
+
+        public ActionResult EditDocument(string fileName)
+        {
+            var options = new Aspose.Pdf.HtmlSaveOptions
+            {
+                FixedLayout = true,
+                PartsEmbeddingMode = Aspose.Pdf.HtmlSaveOptions.PartsEmbeddingModes.EmbedAllIntoHtml, // Embed all CSS and resources
+                RasterImagesSavingMode = Aspose.Pdf.HtmlSaveOptions.RasterImagesSavingModes.AsEmbeddedPartsOfPngPageBackground
+            };
+            var document = db.Documents.Find(fileName);
+            if (document == null)
+            {
+                return NoContent();
+            }
+            ViewData["Document"] = document;
+            using (var pdfStream = new MemoryStream(document.Data))
+            using (var htmlStream = new MemoryStream())
+            {
+                Aspose.Pdf.Document pdf = new(pdfStream);
+                pdf.Save(htmlStream,options);
+                ViewData["htmlString"] = System.Text.Encoding.UTF8.GetString(htmlStream.ToArray());
+            }
+                
+
+            return View();
+        }
+
+        
+
+        [HttpPost]
+        public ActionResult SaveOldDocument(string content, string docName)
+        {
+            if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName)) 
+            {
+                //nothing in doc, nothing in docName.
+                return NoContent();
+            }
+            Aspose.Words.Document doc = new();
+            var builder = new DocumentBuilder(doc);
+            builder.InsertHtml(content);
+            MemoryStream outStream = new();
+            doc.Save(outStream, SaveFormat.Pdf);
+            byte[] bytes = outStream.ToArray(); //get byte data//
+            outStream.Dispose(); //free memory
+            Group9_iCareApp.Models.Document document = db.Documents.Find(docName);
+
+            if (ModelState.IsValid)
+            {
+                document.Data = bytes; //update byte data
+                db.SaveChanges();
+            }
+            return RedirectToAction("Palette");
         }
 
         public IActionResult ViewDocument(string fileName)

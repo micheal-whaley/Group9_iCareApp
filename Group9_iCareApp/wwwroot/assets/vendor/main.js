@@ -146,7 +146,7 @@ const editorConfig = {
 			'./ckeditor5/ckeditor5.css',
 			'./ckeditor5-premium-features/ckeditor5-premium-features.css'
 		],
-		fileName: 'export-pdf-demo.pdf',
+		fileName: 'file.pdf',
 		converterOptions: {
 			format: 'Tabloid',
 			margin_top: '20mm',
@@ -212,7 +212,6 @@ const editorConfig = {
 			'|',
 			'resizeImage',
 			'|',
-			'ckboxImageEdit'
 		]
 	},
 	link: {

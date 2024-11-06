@@ -1,0 +1,65 @@
+﻿@model Group9_iCareApp.Models.Document
+@{
+    Document document = (Document)ViewData["Document"];
+    string htmlString = (string)ViewData["htmlString"];
+}
+
+
+@if(document != null)
+{
+    <div class="text-center">
+        <h1 class="display-4">@document.DocumentName</h1>
+    </div>
+
+    <html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>CKEditor 5 Sample</title>
+        <link rel="stylesheet" href="../../assets/vendor/ckeditor5/ckeditor5.css">
+        <style>
+            .main-container {
+                width: 795px;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        </style>
+    </head>
+    <body>
+        <form asp-controller="ManageDocument" asp-action="SaveOldDocument" method="post">
+            <div class="main-container">
+                <div class="editor-container editor-container_classic-editor" id="editor-container">
+                    <div class="editor-container__editor">
+                        <textarea name="content" id="editor">
+                            @Html.Raw(htmlString)
+                        </textarea>
+                    </div>
+                    <p><input type="submit" value="Submit to Database"></p>
+
+                </div>
+            </div>
+            <input type="hidden" name="docName" value="@document.DocumentName"/>
+        </form>
+
+        <script type="importmap">
+            {
+                "imports": {
+                    "ckeditor5": "../../assets/vendor/ckeditor5/ckeditor5.js",
+                    "ckeditor5/": "../../assets/vendor/ckeditor5/",
+                    "ckeditor5-premium-features": "../../assets/vendor/ckeditor5-premium-features/ckeditor5-premium-features.js",
+                    "ckeditor5-premium-features/": "../../assets/vendor/ckeditor5-premium-features/"
+                }
+            }
+        </script>
+        <script type="module" src="../../assets/vendor/main.js"></script>
+
+
+    </body>
+    </html>
+}
+else
+{
+    <h3>Sorry!</h3>
+    <p>The document you are trying to edit cannot be found.</p>
+}
+
