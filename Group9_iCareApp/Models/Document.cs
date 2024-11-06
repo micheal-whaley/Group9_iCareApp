@@ -9,15 +9,23 @@ public partial class Document
 
     public byte[] Data { get; set; } = null!;
 
-    public int? PatientId { get; set; }
+    public int? PatientRecordId { get; set; }
 
-    public DateOnly? CreationDate { get; set; }
+    public DateTime CreationDate { get; set; }
 
-    public int? WorkerId { get; set; }
+    public int? CreatingWorkerId { get; set; }
 
     public string DocumentName { get; set; } = null!;
 
-    //public virtual PatientRecord Id1 { get; set; } = null!;
+    public DateTime LastModifiedDate { get; set; }
 
-    //public virtual ICareworker IdNavigation { get; set; } = null!;
+    public int? ModifyingWorkerId { get; set; }
+
+    public string? Description { get; set; }
+
+    //public virtual ICareworker? CreatingWorker { get; set; }
+
+    //public virtual ICareworker? ModifiyingWorker { get; set; }
+
+    //public virtual PatientRecord? Patient { get; set; }
 }

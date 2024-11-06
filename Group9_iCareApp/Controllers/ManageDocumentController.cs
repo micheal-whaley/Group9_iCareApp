@@ -1,6 +1,8 @@
 ﻿using Group9_iCareApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Aspose.Words;
+using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 
 namespace Group9_iCareApp.Controllers
 {
@@ -94,10 +96,29 @@ namespace Group9_iCareApp.Controllers
         //}
 
         [HttpGet]
-        public ActionResult Palette()
+        public  ActionResult Palette()
         {
             return View(db.Documents.ToList());
         }
+
+        //[HttpGet]
+        //public async Task<ActionResult> Palette(string sortOrder)
+        //{
+        //    // Fetch documents from the database
+        //    var documents = db.Documents.AsQueryable();
+
+        //    // Determine the sort order (ascending or descending by date)
+        //    documents = sortOrder == "date_desc"
+        //                ? documents.OrderByDescending(d => d.CreationDate)
+        //                : documents.OrderBy(d => d.CreationDate);
+
+        //    // Store the current sort order to toggle in the view
+        //    ViewData["DateSortOrder"] = sortOrder == "date_desc" ? "date_asc" : "date_desc";
+
+        //    // Return sorted documents to the view
+        //    return View(await documents.ToListAsync());
+        //    return View(db.Documents.ToList());
+        //}
 
         public ActionResult ManageDocument()
         {
@@ -127,70 +148,70 @@ namespace Group9_iCareApp.Controllers
             return View("ManageDocument");
         }
 
-        [HttpPost]
-        public ActionResult SaveDocument(string content, string docName, bool editOldDoc)
-        {
-            if (ModelState.IsValid)
-            {
-                db.SaveChanges();
-            }
-            // Validate input
-            if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName))
-            {
-                return NoContent();
-            }
+        //[HttpPost]
+        //public ActionResult SaveDocument(string content, string docName, bool editOldDoc)
+        //{
+        //    if (ModelState.IsValid)
+        //    {
+        //        db.SaveChanges();
+        //    }
+        //    // Validate input
+        //    if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName))
+        //    {
+        //        return NoContent();
+        //    }
 
-            // Check if creating a new document and if the document name already exists
-            if (!editOldDoc && db.Documents.Find(docName + ".pdf") != null)
-            {
-                // Document with the same name already exists
-                return NoContent();
-            }
+        //    // Check if creating a new document and if the document name already exists
+        //    if (!editOldDoc && db.Documents.Find(docName + ".pdf") != null)
+        //    {
+        //        // Document with the same name already exists
+        //        return NoContent();
+        //    }
 
-            // Convert HTML content to PDF
-            Aspose.Words.Document doc = new();
-            var builder = new DocumentBuilder(doc);
-            builder.InsertHtml(content);
-            using MemoryStream outStream = new();
-            doc.Save(outStream, SaveFormat.Pdf);
-            byte[] bytes = outStream.ToArray();
+        //    // Convert HTML content to PDF
+        //    Aspose.Words.Document doc = new();
+        //    var builder = new DocumentBuilder(doc);
+        //    builder.InsertHtml(content);
+        //    using MemoryStream outStream = new();
+        //    doc.Save(outStream, SaveFormat.Pdf);
+        //    byte[] bytes = outStream.ToArray();
 
-            if (ModelState.IsValid)
-            {
-                db.SaveChanges();
-            }
+        //    if (ModelState.IsValid)
+        //    {
+        //        db.SaveChanges();
+        //    }
 
-            // Handle document saving/updating based on edit mode
-            //Group9_iCareApp.Models.Document document;
-            if (editOldDoc)
-            {
-                var document = db.Documents.Find(docName);
-                if (document == null) return NoContent(); // Ensure document exists before updating
-                if (ModelState.IsValid)
-                {
-                    document.Data = bytes;
-                    db.SaveChanges();
-                }
-                document.Data = bytes;
-            }
-            else
-            {
-                var document = new Group9_iCareApp.Models.Document
-                {
-                    DocumentName = docName + ".pdf",
-                    Data = bytes
-                };
-                if (ModelState.IsValid)
-                {
-                    db.Documents.Add(document);
-                    db.SaveChanges();
-                }
-            }
-            // Save changes
+        //    // Handle document saving/updating based on edit mode
+        //    //Group9_iCareApp.Models.Document document;
+        //    if (editOldDoc)
+        //    {
+        //        var document = db.Documents.Find(docName);
+        //        if (document == null) return NoContent(); // Ensure document exists before updating
+        //        if (ModelState.IsValid)
+        //        {
+        //            document.Data = bytes;
+        //            db.SaveChanges();
+        //        }
+        //        document.Data = bytes;
+        //    }
+        //    else
+        //    {
+        //        var document = new Group9_iCareApp.Models.Document
+        //        {
+        //            DocumentName = docName + ".pdf",
+        //            Data = bytes
+        //        };
+        //        if (ModelState.IsValid)
+        //        {
+        //            db.Documents.Add(document);
+        //            db.SaveChanges();
+        //        }
+        //    }
+        //    // Save changes
             
 
-            return RedirectToAction("ManageDocument");
-        }
+        //    return RedirectToAction("ManageDocument");
+        //}
 
 
         [HttpPost]
@@ -213,7 +234,9 @@ namespace Group9_iCareApp.Controllers
             Group9_iCareApp.Models.Document document = new()
             {
                 DocumentName = docName + ".pdf",
-                Data = bytes
+                Data = bytes,
+                CreationDate = DateTime.Now,
+                LastModifiedDate = DateTime.Now,
             };
 
             if (ModelState.IsValid)
@@ -223,10 +246,6 @@ namespace Group9_iCareApp.Controllers
             }
             return RedirectToAction("Palette");
         }
-
-        
-
-        
 
         [HttpPost]
         public ActionResult SaveOldDocument(string content, string docName)
@@ -321,7 +340,9 @@ namespace Group9_iCareApp.Controllers
             Group9_iCareApp.Models.Document document = new()
             {
                 DocumentName = fileNameNoExtension + ".pdf",
-                Data = pdfBytes
+                Data = pdfBytes,
+                CreationDate = DateTime.Now,
+                LastModifiedDate = DateTime.Now,
             };
 
             if (ModelState.IsValid)

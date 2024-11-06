@@ -14,7 +14,6 @@ public partial class iCAREDBContext : IdentityDbContext<iCAREUser>
     public string connectionString { get; } = "Data Source=localhost\\MSSQLSERVER01;Initial Catalog=Group9_iCareDB;Integrated Security=True;Connect Timeout=30;Encrypt=True;Trust Server Certificate=True;Application Intent=ReadWrite;Multi Subnet Failover=False";
 
     public virtual DbSet<Document> Documents { get; set; }
-    public virtual DbSet<DocumentMetadatum> DocumentMetadata { get; set; }
 
     public virtual DbSet<DrugsDictionary> DrugsDictionaries { get; set; }
 
@@ -23,8 +22,6 @@ public partial class iCAREDBContext : IdentityDbContext<iCAREUser>
     public virtual DbSet<iCAREWorker> iCAREWorkers { get; set; }
 
     public virtual DbSet<Location> Locations { get; set; }
-
-    public virtual DbSet<ModificationHistory> ModificationHistories { get; set; }
 
     public virtual DbSet<PatientRecord> PatientRecords { get; set; }
 
@@ -54,34 +51,34 @@ public partial class iCAREDBContext : IdentityDbContext<iCAREUser>
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("documentName");
-            entity.Property(e => e.CreationDate).HasColumnName("creationDate");
+            entity.Property(e => e.CreatingWorkerId).HasColumnName("creatingWorkerID");
+            entity.Property(e => e.CreationDate)
+                .HasColumnType("datetime")
+                .HasColumnName("creationDate");
             entity.Property(e => e.Data).HasColumnName("data");
+            entity.Property(e => e.Description)
+                .IsUnicode(false)
+                .HasColumnName("description");
             entity.Property(e => e.Id)
                 .ValueGeneratedOnAdd()
                 .HasColumnName("ID");
-            entity.Property(e => e.PatientId).HasColumnName("patientID");
-            entity.Property(e => e.WorkerId).HasColumnName("workerID");
+            entity.Property(e => e.LastModifiedDate)
+                .HasColumnType("datetime")
+                .HasColumnName("lastModifiedDate");
+            entity.Property(e => e.ModifyingWorkerId).HasColumnName("modifyingWorkerID");
+            entity.Property(e => e.PatientRecordId).HasColumnName("patientRecordId");
+
+            //entity.HasOne(d => d.CreatingWorker).WithMany(p => p.DocumentCreatingWorkers)
+            //    .HasForeignKey(d => d.CreatingWorkerId)
+            //    .HasConstraintName("FK_Document_iCAREWorkers");
+
+            //entity.HasOne(d => d.ModifiyingWorker).WithMany(p => p.DocumentModifiyingWorkers)
+            //    .HasForeignKey(d => d.ModifiyingWorkerId)
+            //    .HasConstraintName("FK_Document_iCAREWorkers1");
 
             //entity.HasOne(d => d.Patient).WithMany(p => p.Documents)
-            //    .HasForeignKey(d => d.PatientId)
+            //    .HasForeignKey(d => d.PatientRecordId)
             //    .HasConstraintName("FK_Document_PatientRecord");
-
-            //entity.HasOne(d => d.Worker).WithMany(p => p.Documents)
-            //    .HasForeignKey(d => d.WorkerId)
-            //    .HasConstraintName("FK_Document_iCAREWorkers");
-        });
-
-        modelBuilder.Entity<DocumentMetadatum>(entity =>
-        {
-            entity.HasKey(e => e.DocId).HasName("PK__Document__3EF1888DDD7318E2");
-
-            entity.Property(e => e.DocId)
-                //.ValueGeneratedNever()
-                .HasColumnName("DocID");
-            entity.Property(e => e.DateOfCreation).HasColumnType("datetime");
-            entity.Property(e => e.DocName)
-                .HasMaxLength(100)
-                .IsUnicode(false);
         });
 
         modelBuilder.Entity<DrugsDictionary>(entity =>
@@ -158,21 +155,6 @@ public partial class iCAREDBContext : IdentityDbContext<iCAREUser>
                 .HasMaxLength(100)
                 .IsUnicode(false)
                 .HasColumnName("name");
-        });
-
-        modelBuilder.Entity<ModificationHistory>(entity =>
-        {
-            entity.HasKey(e => e.ModificationId).HasName("PK__Modifica__A3FE5A12391D4EDB");
-
-            entity.ToTable("ModificationHistory");
-
-            entity.Property(e => e.ModificationId)
-                //.ValueGeneratedNever()
-                .HasColumnName("ModificationID");
-            entity.Property(e => e.DateOfModification).HasColumnType("datetime");
-            entity.Property(e => e.Description).IsUnicode(false);
-            entity.Property(e => e.DocId).HasColumnName("DocID");
-            entity.Property(e => e.WorkerId).HasColumnName("WorkerID");
         });
 
         modelBuilder.Entity<PatientRecord>(entity =>

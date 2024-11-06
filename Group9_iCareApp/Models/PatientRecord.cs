@@ -26,6 +26,7 @@ public partial class PatientRecord
     public string? TreatmentArea { get; set; }
 
     public int LocationId { get; set; }
+    public virtual ICollection<Document> Documents { get; set; } = new List<Document>();
 
     public virtual Location Location { get; set; } = null!;
 
