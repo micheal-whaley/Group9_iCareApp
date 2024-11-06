@@ -1,7 +1,6 @@
 ﻿using Group9_iCareApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Aspose.Words;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
 namespace Group9_iCareApp.Controllers
@@ -15,6 +14,11 @@ namespace Group9_iCareApp.Controllers
         public IActionResult Index()
         {
             return RedirectToAction("Palette");
+        }
+
+        public IActionResult ManageDocument()
+        {
+            return RedirectToAction("CreateDocument"); //if someone tries to access directly, just do as if it's a new document.
         }
 
         [HttpGet]
@@ -44,23 +48,8 @@ namespace Group9_iCareApp.Controllers
             
             return View(await documents.ToListAsync());
         }
-        
-        public ActionResult DeleteDocument(string fileName)
-        {
-            var doc = db.Documents.Find(fileName);
-            if (doc != null && ModelState.IsValid)
-            {
-                db.Documents.Remove(doc);
-                db.SaveChanges();
-            }
-            return RedirectToAction("Palette");
-        }
 
-        public ActionResult ManageDocument()
-        {
-            return RedirectToAction("CreateDocument"); //if someone tries to access directly, just do as if it's a new document.
-        }
-        public ActionResult CreateDocument()
+        public IActionResult CreateDocument()
         {
             ViewData["Document"] = new Group9_iCareApp.Models.Document();
             ViewData["htmlString"] = string.Empty; //empty for new document//
@@ -68,7 +57,7 @@ namespace Group9_iCareApp.Controllers
             return View("ManageDocument");
         }
 
-        public ActionResult EditDocument(string fileName)
+        public IActionResult EditDocument(string fileName)
         {
             var document = db.Documents.Find(fileName);
             if (document == null)
@@ -84,76 +73,34 @@ namespace Group9_iCareApp.Controllers
             return View("ManageDocument");
         }
 
-        //[HttpPost]
-        //public ActionResult SaveDocument(string content, string docName, bool editOldDoc)
-        //{
-        //    if (ModelState.IsValid)
-        //    {
-        //        db.SaveChanges();
-        //    }
-        //    // Validate input
-        //    if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName))
-        //    {
-        //        return NoContent();
-        //    }
+        public IActionResult ViewDocument(string fileName)
+        {
+            var document = db.Documents.Find(fileName);
+            ViewData["Document"] = document;
+            return View();
+        }
 
-        //    // Check if creating a new document and if the document name already exists
-        //    if (!editOldDoc && db.Documents.Find(docName + ".pdf") != null)
-        //    {
-        //        // Document with the same name already exists
-        //        return NoContent();
-        //    }
+        public IActionResult ViewPdf(string fileName)
+        {
+            var document = db.Documents.Find(fileName);
+            return File(document.Data, "application/pdf");
+        }
 
-        //    // Convert HTML content to PDF
-        //    Aspose.Words.Document doc = new();
-        //    var builder = new DocumentBuilder(doc);
-        //    builder.InsertHtml(content);
-        //    using MemoryStream outStream = new();
-        //    doc.Save(outStream, SaveFormat.Pdf);
-        //    byte[] bytes = outStream.ToArray();
-
-        //    if (ModelState.IsValid)
-        //    {
-        //        db.SaveChanges();
-        //    }
-
-        //    // Handle document saving/updating based on edit mode
-        //    //Group9_iCareApp.Models.Document document;
-        //    if (editOldDoc)
-        //    {
-        //        var document = db.Documents.Find(docName);
-        //        if (document == null) return NoContent(); // Ensure document exists before updating
-        //        if (ModelState.IsValid)
-        //        {
-        //            document.Data = bytes;
-        //            db.SaveChanges();
-        //        }
-        //        document.Data = bytes;
-        //    }
-        //    else
-        //    {
-        //        var document = new Group9_iCareApp.Models.Document
-        //        {
-        //            DocumentName = docName + ".pdf",
-        //            Data = bytes
-        //        };
-        //        if (ModelState.IsValid)
-        //        {
-        //            db.Documents.Add(document);
-        //            db.SaveChanges();
-        //        }
-        //    }
-        //    // Save changes
-            
-
-        //    return RedirectToAction("ManageDocument");
-        //}
-
+        public IActionResult DeleteDocument(string fileName)
+        {
+            var doc = db.Documents.Find(fileName);
+            if (doc != null && ModelState.IsValid)
+            {
+                db.Documents.Remove(doc);
+                db.SaveChanges();
+            }
+            return RedirectToAction("Palette");
+        }
 
         [HttpPost]
-        public ActionResult SaveNewDocument(string content, string docName)
+        public IActionResult SaveNewDocument(string content, string docName)
         {
-            if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName) || db.Documents.Find(docName + ".pdf") != null) //if already exists
+            if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName) || db.Documents.Find(docName + ".pdf") != null) 
             {
                 //nothing in doc, nothing in docName, or doc already exists.
                 return NoContent();
@@ -185,7 +132,7 @@ namespace Group9_iCareApp.Controllers
         }
 
         [HttpPost]
-        public ActionResult SaveOldDocument(string content, string docName)
+        public IActionResult SaveOldDocument(string content, string docName)
         {
             if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName)) 
             {
@@ -202,6 +149,11 @@ namespace Group9_iCareApp.Controllers
 
             Group9_iCareApp.Models.Document document = db.Documents.Find(docName);
 
+            if(document == null)
+            {
+                return NoContent(); //doc can't be found
+            }
+
             if (ModelState.IsValid)
             {
                 document.Data = bytes; //update byte data
@@ -212,25 +164,8 @@ namespace Group9_iCareApp.Controllers
             return RedirectToAction("Palette");
         }
 
-        public IActionResult ViewDocument(string fileName)
+        public IActionResult UploadDocument()
         {
-            var document = db.Documents.Find(fileName);
-            ViewData["Document"] = document;
-            return View();
-        }
-
-
-        public ActionResult ViewPdf(string fileName)
-        {
-            var document = db.Documents.Find(fileName);
-            return File(document.Data, "application/pdf");
-        }
-
-        
-
-        public ActionResult UploadDocument()
-        {
-            ViewData["error"] = ""; //just want it to not be null
             return View();
         }
 
