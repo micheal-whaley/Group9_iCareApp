@@ -1,10 +1,14 @@
 ﻿@{
-    string error = (string)ViewData["error"];
+    string error = (string)TempData["ErrorMessage"];
+    string success = (string)TempData["SuccessMessage"];
 }
 
-<div class="text-center">
-    <h1 class="display-4">Document Upload</h1>
-</div>
+@if (@error == null)
+{
+    <div class="text-center">
+        <h1 class="display-4">Document Upload</h1>
+    </div>
+}
 
 <p>Only PNGs, JPEGs, Microsoft Word documents, and PDFs will be accepted to be uploaded. </p>
 
@@ -12,7 +16,6 @@
     <div class="mb-3 mt-3">
         <form asp-controller="ManageDocument" asp-action="UploadFile" method="post" enctype="multipart/form-data">
             <div class="mb-3">
-                <label class="form-label">Upload File</label>
                 <input type="file" name="file" class="form-control" />
             </div>
             <div class="mb-3">
@@ -22,8 +25,16 @@
     </div>
 </div>
 
-@if (error.Equals("repeat"))
+@if (@error != null)
 {
-    <p>File is already in database.</p>
-    <div class="status-message">File is already in database.</div>
+    <div class="alert alert-danger" role="alert">
+        @error
+    </div>
+}
+
+@if(@success != null)
+{
+    <div class="alert alert-success" role="alert">
+        @success
+    </div>
 }
