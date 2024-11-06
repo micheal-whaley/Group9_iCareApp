@@ -1,8 +1,63 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<iCAREUser> SignInManager
+@inject UserManager<iCAREUser> UserManager
+@inject iCAREDBContext DBContext
+@{
+    string userID = UserManager.GetUserId(User) ?? string.Empty;
+    string fName = DBContext.iCAREUsers.Find(userID)?.Fname ?? "user";
+    int isAdmin = DBContext.iCAREUsers.Find(userID)?.Priveleged ?? 0;
 }
 
-<div class="text-center">
-    <h1 class="display-4">Hello! Welcome to iCare!</h1>
-    <p>Login under the login tab above!</p>
-</div>
+@if (SignInManager.IsSignedIn(User))
+{
+    @if (isAdmin == 0) // if Worker //
+    {
+        <div class="container mt-4">
+            <h1>Welcome to iCare</h1>
+            <p>
+                Welcome, @fName! You are now logged into iCare. Use the tools below to manage your patient records and documents effectively.
+            </p>
+
+            <div class="mt-5">
+                <h2>Available Tools</h2>
+
+                <!-- iCare Board -->
+                <div class="tool mt-4">
+                    <h3>iCare Board</h3>
+                    <p>
+                        The iCare Board provides a complete view of the patients in your location. From here, you can assign yourself to new patients.
+                </div>
+
+                <!-- My Board -->
+                <div class="tool mt-4">
+                    <h3>My Board</h3>
+                    <p>
+                        My Board displays the active patients you are currently assigned to.
+                </div>
+
+                <!-- Palette -->
+                <div class="tool mt-4">
+                    <h3>Palette</h3>
+                    <p>
+                        The Palette is your one-stop interface for document interactions. It allows you to view and edit the documents associated with your patients and create/import new documents for your current patients. Documents will have auto completion for different drugs associated with treatment from a standard reference.
+                    </p>
+                </div>
+            </div>
+        </div>
+    }
+    else // if Admin //
+    {
+        <div class="container mt-4">
+            <h1>Welcome to iCare</h1>
+            <p> Welcome, @fName! You have administrative privileges to manage workers (doctors and nurses) in the system.</p>
+        </div>
+    }
+}
+else
+{ // if not logged in yet //
+    
+    <div class="text-center">
+        <h1 class="display-4">Hello! Welcome to iCare!</h1>
+        <p>Login under the login tab above!</p>
+    </div>
+}

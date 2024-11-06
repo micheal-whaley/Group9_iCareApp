@@ -30,7 +30,7 @@
                     <ul class="navbar-nav flex-grow-1">
                         @if (SignInManager.IsSignedIn(User))
                         {
-                            @if (isAdmin == 0)
+                            @if (isAdmin == 0) // if Worker //
                             {
                                 <li class="nav-item">
                                     <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
@@ -40,7 +40,7 @@
                                 </li>
                             }
                             else
-                            {
+                            { // if Admin //
                                 <li class="nav-item">
                                     <a id="manageWorkers" class="nav-link text-dark" asp-area="" asp-controller="Admin" asp-action="Manage" title="Manage Workers">Manage Workers</a>
                                 </li>
@@ -49,6 +49,9 @@
                                 </li>
                             }
                         }
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="AboutUs">About Us</a>
+                        </li>
                     </ul>
                     <partial name="_LoginPartial" />
                 </div>
