@@ -11,10 +11,37 @@
     <table class="table">
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.DocumentName)
+                <a asp-action="Palette" asp-route-sortOrder="@ViewData["NameSortParm"]">
+                    @Html.DisplayNameFor(model => model.DocumentName)
+                    @if ((string)ViewData["CurrentSortColumn"] == "name")
+                    {
+                        <span>@((string)ViewData["CurrentSortDirection"] == "asc" ? "▲" : "▼")</span>
+                    }
+
+                </a>
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.CreationDate)
+                <a asp-action="Palette" asp-route-sortOrder="@ViewData["LastModifiedSortParm"]">
+                    @Html.DisplayNameFor(model => model.LastModifiedDate)
+                    @if ((string)ViewData["CurrentSortColumn"] == "modified")
+                    {
+                        <span>@((string)ViewData["CurrentSortDirection"] == "asc" ? "▲" : "▼")</span>
+                    }
+
+                </a>
+            </th>
+            <th>
+                <a asp-action="Palette" asp-route-sortOrder="@ViewData["CreationSortParm"]">
+                    @Html.DisplayNameFor(model => model.CreationDate)
+                    @if ((string)ViewData["CurrentSortColumn"] == "creation")
+                    {
+                        <span>@((string)ViewData["CurrentSortDirection"] == "asc" ? "▲" : "▼")</span>
+                    }
+
+                </a>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
             </th>
         </tr>
 
@@ -25,14 +52,24 @@
                     @Html.DisplayFor(modelItem => item.DocumentName)
                 </td>
                 <td>
+                    @Html.DisplayFor(modelItem => item.LastModifiedDate)
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.CreationDate)
                 </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                
 
                 <td>
                     @Html.ActionLink("View", "ViewDocument", "ManageDocument", new { fileName = item.DocumentName })
                 </td>
                 <td>
                     @Html.ActionLink("Edit", "EditDocument", "ManageDocument", new { fileName = item.DocumentName })
+                </td>
+                <td>
+                    @Html.ActionLink("Delete", "DeleteDocument", "ManageDocument", new { fileName = item.DocumentName })
                 </td>
             </tr>
         }

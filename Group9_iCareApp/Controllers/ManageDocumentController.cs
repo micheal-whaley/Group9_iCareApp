@@ -12,113 +12,49 @@ namespace Group9_iCareApp.Controllers
         private readonly iCAREDBContext db = new();
         private readonly string[] permittedExtensions = { ".png", ".jpg", ".jpeg", ".doc", ".docx", ".pdf" };
 
-
-
-        // GET: ManageDocument
         public IActionResult Index()
         {
             return RedirectToAction("Palette");
         }
 
-        // GET: ManageDocument/Details/5
-        //public IActionResult Details(int id)
-        //{
-        //    return View();
-        //}
-
-        //// GET: ManageDocument/Create
-        //public IActionResult Create()
-        //{
-        //    return View();
-        //}
-
-        // POST: ManageDocument/Create
-        [HttpPost]
-        //public IActionResult Create(FormCollection collection)
-        //{
-        //    try
-        //    {
-        //        // TODO: Add insert logic here
-
-        //        return RedirectToAction("Index");
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
-
-        //// GET: ManageDocument/Edit/5
-        //public IActionResult Edit(int id)
-        //{
-        //    return View();
-        //}
-
-        //// POST: ManageDocument/Edit/5
-        //[HttpPost]
-        //public IActionResult Edit(int id, FormCollection collection)
-        //{
-        //    try
-        //    {
-        //        // TODO: Add update logic here
-
-        //        return RedirectToAction("Index");
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
-
-
-
-
-        //// GET: ManageDocument/Delete/5
-        //public IActionResult Delete(int id)
-        //{
-        //    return View();
-        //}
-
-        //// POST: ManageDocument/Delete/5
-        //[HttpPost]
-        //public IActionResult Delete(int id, FormCollection collection)
-        //{
-        //    try
-        //    {
-        //        // TODO: Add delete logic here
-
-        //        return RedirectToAction("Index");
-        //    }
-        //    catch
-        //    {
-        //        return View();
-        //    }
-        //}
-
         [HttpGet]
-        public  ActionResult Palette()
+        public async Task<IActionResult> Palette(string sortOrder)
         {
-            return View(db.Documents.ToList());
+            ViewData["NameSortParm"] = sortOrder == "name_asc" ? "name_desc" : "name_asc";
+            ViewData["LastModifiedSortParm"] = sortOrder == "modified_asc" ? "modified_desc" : "modified_asc";
+            ViewData["CreationSortParm"] = sortOrder == "creation_asc" ? "creation_desc" : "creation_asc";
+
+            // Track current sort column and direction
+            ViewData["CurrentSortColumn"] = sortOrder?.Split('_')[0] ?? "name"; //Default to name if null
+            ViewData["CurrentSortDirection"] = sortOrder?.Split('_')[1] ?? "desc"; // Default to ascending if null
+
+            // Fetch documents
+            var documents = db.Documents.AsQueryable();
+
+            documents = sortOrder switch
+            {
+                "name_desc" => documents.OrderByDescending(d => d.DocumentName),
+                "name_asc" => documents.OrderBy(d => d.DocumentName),
+                "modified_desc" => documents.OrderByDescending(d => d.LastModifiedDate),
+                "modified_asc" => documents.OrderBy(d => d.LastModifiedDate),
+                "creation_desc" => documents.OrderByDescending(d => d.CreationDate),
+                "creation_asc" => documents.OrderBy(d => d.CreationDate),
+                _ => documents.OrderByDescending(d => d.DocumentName) // Default sort by DocumentName descending
+            };
+            
+            return View(await documents.ToListAsync());
         }
-
-        //[HttpGet]
-        //public async Task<ActionResult> Palette(string sortOrder)
-        //{
-        //    // Fetch documents from the database
-        //    var documents = db.Documents.AsQueryable();
-
-        //    // Determine the sort order (ascending or descending by date)
-        //    documents = sortOrder == "date_desc"
-        //                ? documents.OrderByDescending(d => d.CreationDate)
-        //                : documents.OrderBy(d => d.CreationDate);
-
-        //    // Store the current sort order to toggle in the view
-        //    ViewData["DateSortOrder"] = sortOrder == "date_desc" ? "date_asc" : "date_desc";
-
-        //    // Return sorted documents to the view
-        //    return View(await documents.ToListAsync());
-        //    return View(db.Documents.ToList());
-        //}
+        
+        public ActionResult DeleteDocument(string fileName)
+        {
+            var doc = db.Documents.Find(fileName);
+            if (doc != null && ModelState.IsValid)
+            {
+                db.Documents.Remove(doc);
+                db.SaveChanges();
+            }
+            return RedirectToAction("Palette");
+        }
 
         public ActionResult ManageDocument()
         {
@@ -237,6 +173,7 @@ namespace Group9_iCareApp.Controllers
                 Data = bytes,
                 CreationDate = DateTime.Now,
                 LastModifiedDate = DateTime.Now,
+                //need both workers and patient + description
             };
 
             if (ModelState.IsValid)
@@ -268,6 +205,8 @@ namespace Group9_iCareApp.Controllers
             if (ModelState.IsValid)
             {
                 document.Data = bytes; //update byte data
+                document.LastModifiedDate = DateTime.Now;
+                //need modified WORKER ID
                 db.SaveChanges();
             }
             return RedirectToAction("Palette");
@@ -343,6 +282,7 @@ namespace Group9_iCareApp.Controllers
                 Data = pdfBytes,
                 CreationDate = DateTime.Now,
                 LastModifiedDate = DateTime.Now,
+                //need both workerIDs and patientID + description
             };
 
             if (ModelState.IsValid)
