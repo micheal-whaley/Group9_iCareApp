@@ -16,6 +16,11 @@ namespace Group9_iCareApp.Controllers
 
         public IActionResult Create()
         {
+            return Redirect("~/Identity/Account/Register");
+        }
+
+        public IActionResult Success()
+        {
             return View();
         }
     }

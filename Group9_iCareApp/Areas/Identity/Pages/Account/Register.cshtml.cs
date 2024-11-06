@@ -39,7 +39,8 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
         private readonly iCAREDBContext _dbContext;
 
         public List<Location> locations = new List<Location>();
-
+        public List<String> professions = new List<String>();
+        public SelectList Professions { get; set; }
         public RegisterModel(
             UserManager<iCAREUser> userManager,
             IUserStore<iCAREUser> userStore,
@@ -55,14 +56,15 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
             _emailSender = emailSender;
             _dbContext = new iCAREDBContext();  
             string connectionString = _dbContext.connectionString;
-
+            professions.Add("Doctor");
+            professions.Add("Nurse");
+            Professions = new SelectList(professions);
             con.ConnectionString = connectionString;
             FetchData();
         }
 
         
         public SelectList Locations { get; set; }
-
         private void FetchData()
         {
 
@@ -152,6 +154,10 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
             public int locationID { set; get; }
 
             [Required]
+            [Display(Name = "Profession")]
+            public string profession { get; set; }
+
+            [Required]
             [StringLength(100, ErrorMessage = "The {0} must be at least {2} and at max {1} characters long.", MinimumLength = 6)]
             [DataType(DataType.Password)]
             [Display(Name = "Password")]
@@ -195,17 +201,20 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
                 if (result.Succeeded)
                 {
                     _logger.LogInformation("User created a new account with password.");
-
                     var userId = await _userManager.GetUserIdAsync(user);
-                    var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                    var worker = CreateWorker(Input.profession, userId);
+                    _dbContext.iCAREWorkers.Add(worker);
+                    await _dbContext.SaveChangesAsync();
+                    /*var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                     code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
                     var callbackUrl = Url.Page(
                         "/Account/ConfirmEmail",
                         pageHandler: null,
                         values: new { area = "Identity", userId = userId, code = code, returnUrl = returnUrl },
-                        protocol: Request.Scheme);
+                        protocol: Request.Scheme);*/
 
-                    await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
+                    return RedirectToAction("Success", "Admin");
+                    /*await _emailSender.SendEmailAsync(Input.Email, "Confirm your email",
                         $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>.");
 
                     if (_userManager.Options.SignIn.RequireConfirmedAccount)
@@ -216,7 +225,7 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
                     {
                         await _signInManager.SignInAsync(user, isPersistent: false);
                         return LocalRedirect(returnUrl);
-                    }
+                    }*/
                 }
                 foreach (var error in result.Errors)
                 {
@@ -244,6 +253,15 @@ namespace Group9_iCareApp.Areas.Identity.Pages.Account
                     $"Ensure that '{nameof(iCAREUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
                     $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
             }
+        }
+
+        private iCAREWorker CreateWorker(string Profession, string UID)
+        {
+            var worker = new iCAREWorker();
+            worker.Profession = Profession;
+            worker.UserAccount = UID;
+            worker.ProfessionNavigation = _dbContext.WorkerRoles.Find(Profession);
+            return worker;
         }
 
         private IUserEmailStore<iCAREUser> GetEmailStore()

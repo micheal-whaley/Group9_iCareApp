@@ -173,14 +173,6 @@ public partial class iCAREDBContext : IdentityDbContext<iCAREUser>
             entity.Property(e => e.Description).IsUnicode(false);
             entity.Property(e => e.DocId).HasColumnName("DocID");
             entity.Property(e => e.WorkerId).HasColumnName("WorkerID");
-
-            entity.HasOne(d => d.Doc).WithMany(p => p.ModificationHistories)
-                .HasForeignKey(d => d.DocId)
-                .HasConstraintName("FK__Modificat__DocID__4D94879B");
-
-            entity.HasOne(d => d.Worker).WithMany(p => p.ModificationHistories)
-                .HasForeignKey(d => d.WorkerId)
-                .HasConstraintName("FK__Modificat__Worke__4E88ABD4");
         });
 
         modelBuilder.Entity<PatientRecord>(entity =>
@@ -231,14 +223,6 @@ public partial class iCAREDBContext : IdentityDbContext<iCAREUser>
             entity.Property(e => e.PatientId).HasColumnName("PatientID");
             entity.Property(e => e.TreatmentDate).HasColumnType("datetime");
             entity.Property(e => e.WorkerId).HasColumnName("WorkerID");
-
-            entity.HasOne(d => d.Patient).WithMany(p => p.TreatmentRecords)
-                .HasForeignKey(d => d.PatientId)
-                .HasConstraintName("FK__Treatment__Patie__47DBAE45");
-
-            entity.HasOne(d => d.Worker).WithMany(p => p.TreatmentRecords)
-                .HasForeignKey(d => d.WorkerId)
-                .HasConstraintName("FK__Treatment__Worke__48CFD27E");
         });
 
         modelBuilder.Entity<WorkerRole>(entity =>
