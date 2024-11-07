@@ -1,13 +1,65 @@
 ﻿@model Group9_iCareApp.Models.Document
+@inject iCAREDBContext db
 @{
     Document document = (Group9_iCareApp.Models.Document)ViewData["Document"];
+    //PatientRecord patient = db.PatientRecords.Find(document.PatientRecordId);
+    iCAREWorker creatingWorker = db.iCAREWorkers.Find(document.CreatingWorkerId);
+    iCAREUser creatingUser = db.iCAREUsers.Find(creatingWorker.UserAccount);
+    iCAREWorker editingWorker = db.iCAREWorkers.Find(document.ModifyingWorkerId);
+    iCAREUser editingUser = db.iCAREUsers.Find(editingWorker.UserAccount);
 }
 
-@if (document != null)
-{
+@if (document != null){
     <h1>@document.DocumentName</h1>
     <a asp-controller="ManageDocument" asp-action="EditDocument" asp-route-fileName="@document.DocumentName" class="btn btn-primary">Edit Document</a>
     <object data='@Url.Action("ViewPdf", "ManageDocument", new {fileName = document.DocumentName})' width="100%" height="600px" name=@document.DocumentName></object>
+    <h2>Document Details</h2>
+    <div>
+    <h4>Document Information</h4>
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-3">
+            Description
+        </dt>
+        <dd class="col-sm-9">
+            @document.Description
+        </dd>
+        <dt class="col-sm-3">
+            Patient 
+        </dt>
+        <dd class="col-sm-9">
+            Later on the Patient.
+        </dd>
+
+        <dt class="col-sm-3">
+            Creation Date
+        </dt>
+        <dd class="col-sm-9">
+            @document.CreationDate
+        </dd>
+        <dt class="col-sm-3">
+            Created by
+        </dt>
+        <dd class="col-sm-9">
+            @creatingUser.Fname @creatingUser.Lname
+        </dd>
+
+        <dt class="col-sm-3">
+            Last Modified Date
+        </dt>
+        <dd class="col-sm-9">
+            @document.LastModifiedDate
+        </dd>
+        <dt class="col-sm-3">
+            Last Modified by
+        </dt>
+        <dd class="col-sm-9">
+            @editingUser.Fname @editingUser.Lname
+        </dd>
+    </dl>
+</div>
+
+
 }
 else
 {
@@ -15,4 +67,7 @@ else
     <p>The document you are trying to view cannot be found.</p>
 }
 
+<div>
+    <a href="@Url.Action("Palette", "ManageDocument")">Back to Palette</a>
+</div>
 

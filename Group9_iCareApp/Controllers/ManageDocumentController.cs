@@ -54,7 +54,7 @@ namespace Group9_iCareApp.Controllers
             ViewData["Document"] = new Group9_iCareApp.Models.Document();
             ViewData["htmlString"] = string.Empty; //empty for new document//
             ViewData["editOldDoc"] = false;
-            return View("ManageDocument");
+			return View("ManageDocument");
         }
 
         public IActionResult EditDocument(string fileName)
@@ -70,7 +70,7 @@ namespace Group9_iCareApp.Controllers
             ViewData["Document"] = document;
             ViewData["htmlString"] = htmlString;
             ViewData["editOldDoc"] = true;
-            return View("ManageDocument");
+			return View("ManageDocument");
         }
 
         public IActionResult ViewDocument(string fileName)
@@ -98,7 +98,7 @@ namespace Group9_iCareApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult SaveNewDocument(string content, string docName)
+        public IActionResult SaveNewDocument(string content, string docName, int workerID)
         {
             if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName) || db.Documents.Find(docName + ".pdf") != null) 
             {
@@ -119,8 +119,10 @@ namespace Group9_iCareApp.Controllers
                 DocumentName = docName + ".pdf",
                 Data = bytes,
                 CreationDate = DateTime.Now,
+                CreatingWorkerId = workerID,
                 LastModifiedDate = DateTime.Now,
-                //need both workers and patient + description
+                ModifyingWorkerId = workerID,
+                //need patient + description
             };
 
             if (ModelState.IsValid)
@@ -132,7 +134,7 @@ namespace Group9_iCareApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult SaveOldDocument(string content, string docName)
+        public IActionResult SaveOldDocument(string content, string docName, int workerID)
         {
             if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName)) 
             {
@@ -158,7 +160,7 @@ namespace Group9_iCareApp.Controllers
             {
                 document.Data = bytes; //update byte data
                 document.LastModifiedDate = DateTime.Now;
-                //need modified WORKER ID
+                document.ModifyingWorkerId = workerID;
                 db.SaveChanges();
             }
             return RedirectToAction("Palette");

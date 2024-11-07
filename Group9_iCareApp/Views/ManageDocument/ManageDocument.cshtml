@@ -1,8 +1,13 @@
-﻿@model Group9_iCareApp.Models.Document
+﻿@using Microsoft.AspNetCore.Identity
+@inject UserManager<iCAREUser> UserManager
+@inject iCAREDBContext db
+@model Group9_iCareApp.Models.Document
 @{
     Document document = (Document)ViewData["Document"];
     string htmlString = (string)ViewData["htmlString"];
     bool editOldDoc = (bool)ViewData["editOldDoc"];
+    string userID = UserManager.GetUserId(User) ?? string.Empty;
+    iCAREWorker worker = db.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userID);
 }
 
 <div class="text-center">
@@ -52,6 +57,7 @@
         </div>
         <!-- Hidden field to pass the editOldDoc flag to the controller -->
         <input type="hidden" name="editOldDoc" value="@editOldDoc" />
+        <input type="hidden" name="workerID" value="@worker.Id" />
     </form>
 
     <script type="importmap">
