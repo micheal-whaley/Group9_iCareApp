@@ -1,41 +1,80 @@
-﻿@model List<Group9_iCareApp.Models.PatientRecord>
+﻿@model IEnumerable<IGrouping<Location, PatientRecord>>
 
-@{
-    ViewData["Title"] = "Assign Patients to Workers";
-}
+<div class="container mt-4">
+    <h2>Assign Patients</h2>
 
-<h2>@ViewData["Title"]</h2>
+    <div class="card mb-4">
+        <div class="card-body">
+            <form method="get" action="@Url.Action("Index")" class="form-inline">
+                <div class="form-group">
+                    <label for="workerEmail" class="mr-2">Worker Email:</label>
+                    <input type="email" class="form-control" id="workerEmail" name="workerEmail"
+                           value="@ViewBag.WorkerEmail" required />
+                </div>
+                <button type="submit" class="btn btn-primary ml-2">Load Worker</button>
+            </form>
+        </div>
+    </div>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>ID</th>
-            <th>First Name</th>
-            <th>Last Name</th>
-            <th>Address</th>
-            <th>Date of Birth</th>
-            <th>Height</th>
-            <th>Weight</th>
-            <th>Blood Group</th>
-            <th>Treatment Area</th>
-            <th>Location</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var patient in Model)
+    @if (ViewBag.CurrentWorker != null)
+    {
+        var worker = ViewBag.CurrentWorker;
+            <div class="alert alert-info">
+                Current Worker: @worker.AccountNavigation.Fname @worker.AccountNavigation.Lname (@worker.Profession)
+            </div>
+    }
+
+    <form method="post" action="@Url.Action("AssignPatients")">
+        <input type="hidden" name="workerEmail" value="@ViewBag.WorkerEmail" />
+
+        @foreach (var locationGroup in Model)
         {
-            <tr>
-                <td>@patient.Id</td>
-                <td>@patient.Fname</td>
-                <td>@patient.Lname</td>
-                <td>@patient.Address</td>
-                <td>@patient.DateOfBirth?.ToString("yyyy-MM-dd")</td>
-                <td>@patient.Height</td>
-                <td>@patient.Weight</td>
-                <td>@patient.BloodGroup</td>
-                <td>@patient.TreatmentArea</td>
-                <td>@patient.Location?.Name</td>  <!-- Adjust field for location -->
-            </tr>
+                <div class="card mb-4">
+                    <div class="card-header">
+                        <h4>Location: @locationGroup.Key.Name</h4>
+                        <p>@locationGroup.Key.Description</p>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Select</th>
+                                        <th>Patient Name</th>
+                                        <th>Treatment Area</th>
+                                        <th>Bed ID</th>
+                                        <th>Assigned Workers</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                @foreach (var patient in locationGroup)
+                                {
+                                            <tr>
+                                                <td>
+                                                    <input type="checkbox" name="patientIds" value="@patient.Id" />
+                                                </td>
+                                                <td>@patient.Fname @patient.Lname</td>
+                                                <td>@patient.TreatmentArea</td>
+                                                <td>@patient.BedId</td>
+                                                <td>
+                                            @foreach (var treatment in patient.TreatmentRecords)
+                                            {
+                                                            <div>
+                                                    @treatment.Worker.AccountNavigation.Fname
+                                                    @treatment.Worker.AccountNavigation.Lname
+                                                                (@treatment.Worker.Profession)
+                                                            </div>
+                                            }
+                                                </td>
+                                            </tr>
+                                }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
         }
-    </tbody>
-</table>
+
+        <button type="submit" class="btn btn-primary">Assign Selected Patients</button>
+    </form>
+</div>
