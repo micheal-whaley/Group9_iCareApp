@@ -1,0 +1,38 @@
+﻿@model Group9_iCareApp.Models.PatientRecord
+@{
+    ViewBag.Title = "Patient Creation";
+    var Locations = (SelectList)ViewData["Locations"];
+    //var patient = (Group9_iCareApp.Models.PatientRecord)ViewData["Message"];
+}
+
+<h2>Create New Patient</h2>
+
+
+<form id="patientCreation" asp-action="CreatePatient" asp-controller="AssignPatient">
+    <label class="mt-4">Locations</label>
+    <select asp-for="LocationId" asp-items="Locations" class="form-select"></select>
+    <label class="mt-4">First Name</label>
+    <input class="form-control mt-4" type="text" asp-for="Fname" />
+    <label class="mt-4">Last Name</label>
+    <input class="form-control mt-4" type="text" asp-for="Lname" />
+    <label class="mt-4">Address</label>
+    <input class="form-control mt-4" type="text" asp-for="Address" />
+    <label class="mt-4">Date of Birth</label>
+    <input class="form-control mt-4" type="date" value="yyyy-MM-dd" asp-for="DateOfBirth" />
+    <label class="mt-4">Height</label>
+    <input class="form-control mt-4" type="number"  asp-for="Height" />
+    <label class="mt-4">Weight</label>
+    <input class="form-control mt-4" type="number" asp-for="Weight" />
+    <label class="mt-4">Blood Group</label>
+    <input class="form-control mt-4" type="text" asp-for="BloodGroup" />
+    <label class="mt-4">Bed ID</label>
+    <input class="form-control mt-4" type="number" asp-for="BedId" />
+    <label class="mt-4">Treatment Area</label>
+    <input class="form-control mt-4" type="text" asp-for="TreatmentArea" />
+
+    <button type="submit" class="btn btn-primary mt-4">Create Patient</button>
+</form>
+
+
+
+

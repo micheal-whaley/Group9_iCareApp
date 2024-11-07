@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using Group9_iCareApp.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -10,15 +12,62 @@ namespace Group9_iCareApp.Controllers
 {
     public class AssignPatientController : Controller
     {
+        SqlCommand com = new SqlCommand();
+
+        SqlDataReader dr;
+        SqlConnection con = new SqlConnection();
+
         private readonly iCAREDBContext _context;
         private readonly ILogger<AssignPatientController> _logger;
         private const int MAX_NURSES_PER_PATIENT = 3;
+        public List<Location> locations = new List<Location>();
 
         public AssignPatientController(iCAREDBContext context, ILogger<AssignPatientController> logger)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+
+            string connectionString = _context.connectionString;
+            con.ConnectionString = connectionString;
+            FetchData();
         }
+
+
+        public Microsoft.AspNetCore.Mvc.Rendering.SelectList Locations { get; set; }
+        private void FetchData()
+        {
+
+            if (locations.Count > 0)
+            {
+                locations.Clear();
+            }
+
+            try
+            {
+                con.Open();
+                com.Connection = con;
+                com.CommandText = "SELECT TOP (1000) [ID],[name],[Description] FROM [Group9_iCareDB].[dbo].[Location]";
+                dr = com.ExecuteReader();
+                Console.WriteLine("RAAAAH\n");
+                while (dr.Read())
+                {
+                    Console.Write("AAAAH LOOPING\n");
+                    locations.Add(new Location()
+                    {
+                        Id = int.Parse(dr["ID"].ToString()),
+                        Name = dr["name"].ToString()
+                    });
+                }
+                Locations = new SelectList(locations, "Id", "Name");
+                con.Close();
+
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
 
         [HttpGet("patients")]
         public ActionResult<IEnumerable<PatientRecord>> GetAllPatients()
@@ -37,6 +86,8 @@ namespace Group9_iCareApp.Controllers
                 return StatusCode(420, "An error occurred while retrieving patients");
             }
         }
+
+
 
         [HttpPost("assign")]
         public ActionResult<AssignmentResponse> AssignPatients(AssignmentRequest request)
@@ -121,6 +172,56 @@ namespace Group9_iCareApp.Controllers
         {
             var patients = _context.PatientRecords.AsNoTracking().ToList();
             return View(patients); // This will pass the list of patients to the view
+        }
+
+        public IActionResult CreatePatient()
+        {
+            ViewData["Locations"] = Locations;
+            return View();
+        }
+
+
+        [HttpPost]
+        public ActionResult CreatePatient(int id, PatientRecord patient)
+        {
+
+            var newPatient = CreateRecord();
+
+            newPatient.Id = id;
+            newPatient.Fname = patient.Fname;
+            newPatient.Lname = patient.Lname;
+            newPatient.Address = patient.Address;
+            newPatient.DateOfBirth = patient.DateOfBirth;
+            newPatient.Height = patient.Height;
+            newPatient.Weight = patient.Weight;
+            newPatient.BloodGroup = patient.BloodGroup;
+            newPatient.BedId = patient.BedId;
+            newPatient.TreatmentArea = patient.TreatmentArea;
+            newPatient.LocationId = patient.LocationId;
+
+            DbSet<PatientRecord> allRecords = _context.PatientRecords;
+            allRecords.Add(newPatient);
+            _context.SaveChanges();
+
+
+
+
+            return View();
+        }
+
+
+        private PatientRecord CreateRecord()
+        {
+            try
+            {
+                return Activator.CreateInstance<PatientRecord>();
+            }
+            catch
+            {
+                throw new InvalidOperationException($"Can't create an instance of '{nameof(iCAREUser)}'. " +
+                    $"Ensure that '{nameof(iCAREUser)}' is not an abstract class and has a parameterless constructor, or alternatively " +
+                    $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml");
+            }
         }
 
         private string AssignDoctorToPatient(int patientId, int doctorId)
