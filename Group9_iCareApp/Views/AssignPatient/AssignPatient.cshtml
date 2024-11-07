@@ -1,31 +1,36 @@
 ﻿@model List<Group9_iCareApp.Models.PatientRecord>
+
 @{
     ViewData["Title"] = "Assign Patients to Workers";
 }
 
-<h2>@ViewData["Title"]</h2>
+<h1>Assign Patients to Workers</h1>
 
-<form asp-action="AssignPatients" method="post">
-    <div class="form-group">
-        <label for="workerId">Select Worker ID</label>
-        <input id="workerId" name="WorkerId" class="form-control" type="number" placeholder="Enter Worker ID" required />
+<form method="post" action="/AssignPatient/assign">
+    <div>
+        <label for="workerId">Worker ID:</label>
+        <input type="number" name="WorkerId" id="workerId" required />
     </div>
 
-    <div class="form-group">
-        <label>Select Patients</label>
-        <select name="PatientIds" class="form-control" multiple="multiple" required>
-            @foreach (var patient in Model)
-            {
-                <option value="@patient.Id">@patient.Fname, @patient.Lname</option>
-            }
-        </select>
+    <div>
+        <h3>Patient List</h3>
+        @if (Model != null && Model.Any())
+        {
+            <ul>
+                @foreach (var patient in Model)
+                {
+                    <li>
+                        <input type="checkbox" name="PatientIds" value="@patient.Id" />
+                        @patient.Fname (ID: @patient.Id)
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No patients available to assign.</p>
+        }
     </div>
 
-    <button type="submit" class="btn btn-primary">Assign</button>
+    <button type="submit">Assign Selected Patients</button>
 </form>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial");
-    }
-}

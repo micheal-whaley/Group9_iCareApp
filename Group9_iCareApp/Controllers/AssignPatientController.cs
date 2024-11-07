@@ -8,8 +8,6 @@ using Microsoft.Extensions.Logging;
 
 namespace Group9_iCareApp.Controllers
 {
-    //[ApiController]
-    //[Route("api/[controller]")]
     public class AssignPatientController : Controller
     {
         private readonly iCAREDBContext _context;
@@ -84,7 +82,7 @@ namespace Group9_iCareApp.Controllers
             }
         }
 
-        private string AssignNurseToPatient(int patientId, int nurseId)
+        public string AssignNurseToPatient(int patientId, int nurseId)
         {
             var patient = _context.PatientRecords
                 .AsNoTracking()
@@ -122,7 +120,7 @@ namespace Group9_iCareApp.Controllers
         public IActionResult AssignPatient()
         {
             var patients = _context.PatientRecords.AsNoTracking().ToList();
-            return View(patients);
+            return View(patients); // This will pass the list of patients to the view
         }
 
         private string AssignDoctorToPatient(int patientId, int doctorId)

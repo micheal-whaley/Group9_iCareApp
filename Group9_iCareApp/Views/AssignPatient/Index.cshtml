@@ -1,0 +1,33 @@
+﻿@model IEnumerable<Group9_iCareApp.Models.PatientRecord>
+
+@{
+    ViewData["Title"] = "Assign Patients";
+}
+
+<h2>Assign Patients</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Patient ID</th>
+            <th>Name</th>
+            <th>Address</th>
+            <th>Date of Birth</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var patient in Model)
+        {
+            <tr>
+                <td>@patient.Id</td>
+                <td>@patient.Fname @patient.Lname</td>
+                <td>@patient.Address</td>
+                <td>@patient.DateOfBirth?.ToString("MM/dd/yyyy")</td>
+                <td>
+                    <a href="@Url.Action("Assign", "AssignPatient", new { id = patient.Id })" class="btn btn-primary">Assign</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
