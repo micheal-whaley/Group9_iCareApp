@@ -6,41 +6,49 @@
 }
 
 
-<div class="text-center">
-    <h1 class="display-4">Document Upload</h1>
-</div>
-
-
-<p>Only PNGs, JPEGs, Microsoft Word documents, and PDFs will be accepted to be uploaded. </p>
-
-<div class="container">
-    <div class="mb-3 mt-3">
-        <form asp-controller="ManageDocument" asp-action="UploadFile" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label class="mt-4" for="Id">Patient</label>
-                <select asp-for="Id" asp-items=patients class="form-select"></select>
-            </div>
-            
-            <div class="mb-3">
-                <input type="file" name="file" class="form-control" />
-            </div>
-            <div class="mb-3">
-                <button type="submit" class="btn btn-primary">Upload</button>
-            </div>
-        </form>
-    </div>
-</div>
-
-@if (@error != null)
+@if (!patients.Any())
 {
-    <div class="alert alert-danger" role="alert">
-        @error
+    <p>Currently, you have no patients assigned to you, so you can't upload any documents. Feel free to assign yourself some patients!</p>
+}
+else
+{
+    <div class="text-center">
+        <h1 class="display-4">Document Upload</h1>
     </div>
+
+
+    <p>Only PNGs, JPEGs, Microsoft Word documents, and PDFs will be accepted to be uploaded. </p>
+
+    <div class="container">
+        <div class="mb-3 mt-3">
+            <form asp-controller="ManageDocument" asp-action="UploadFile" method="post" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label class="mt-4" for="Id">Patient</label>
+                    <select asp-for="Id" asp-items=patients class="form-select"></select>
+                </div>
+
+                <div class="mb-3">
+                    <input type="file" name="file" class="form-control" />
+                </div>
+                <div class="mb-3">
+                    <button type="submit" class="btn btn-primary">Upload</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    @if (@error != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @error
+        </div>
+    }
+
+    @if (@success != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @success
+        </div>
+    }
 }
 
-@if(@success != null)
-{
-    <div class="alert alert-success" role="alert">
-        @success
-    </div>
-}
