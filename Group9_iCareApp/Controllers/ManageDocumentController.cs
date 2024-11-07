@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Aspose.Words;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
 
 namespace Group9_iCareApp.Controllers
 {
@@ -9,8 +10,13 @@ namespace Group9_iCareApp.Controllers
     {
 
         private readonly iCAREDBContext db = new();
+        private readonly UserManager<iCAREUser> userManager;
         private readonly string[] permittedExtensions = { ".png", ".jpg", ".jpeg", ".doc", ".docx", ".pdf" };
 
+        public ManageDocumentController(UserManager<iCAREUser> userManager)
+        {
+            this.userManager = userManager;
+        }
         public IActionResult Index()
         {
             return RedirectToAction("Palette");
@@ -98,7 +104,7 @@ namespace Group9_iCareApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult SaveNewDocument(string content, string docName, int workerID)
+        public IActionResult SaveNewDocument(string content, string docName)
         {
             if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName) || db.Documents.Find(docName + ".pdf") != null) 
             {
@@ -114,6 +120,8 @@ namespace Group9_iCareApp.Controllers
             doc.Save(outStream, SaveFormat.Pdf);
             byte[] bytes = outStream.ToArray();
 
+
+            int workerID = db.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userManager.GetUserId(User)).Id;
             Group9_iCareApp.Models.Document document = new()
             {
                 DocumentName = docName + ".pdf",
@@ -134,7 +142,7 @@ namespace Group9_iCareApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult SaveOldDocument(string content, string docName, int workerID)
+        public IActionResult SaveOldDocument(string content, string docName)
         {
             if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName)) 
             {
@@ -160,7 +168,7 @@ namespace Group9_iCareApp.Controllers
             {
                 document.Data = bytes; //update byte data
                 document.LastModifiedDate = DateTime.Now;
-                document.ModifyingWorkerId = workerID;
+                document.ModifyingWorkerId = db.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userManager.GetUserId(User)).Id;
                 db.SaveChanges();
             }
             return RedirectToAction("Palette");
@@ -213,13 +221,16 @@ namespace Group9_iCareApp.Controllers
                 return RedirectToAction("UploadDocument"); //This should never happen, but just in case.
             }
 
+            int workerID = db.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userManager.GetUserId(User)).Id;
             Group9_iCareApp.Models.Document document = new()
             {
                 DocumentName = fileNameNoExtension + ".pdf",
                 Data = pdfBytes,
                 CreationDate = DateTime.Now,
+                CreatingWorkerId = workerID,
                 LastModifiedDate = DateTime.Now,
-                //need both workerIDs and patientID + description
+                ModifyingWorkerId = workerID,
+                //patientID + description
             };
 
             if (ModelState.IsValid)
