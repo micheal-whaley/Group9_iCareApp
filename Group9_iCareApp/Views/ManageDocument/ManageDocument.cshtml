@@ -8,7 +8,7 @@
     var drugs = (List<DrugsDictionary>)ViewData["drugs"];
 }
 
-@if (!patients.Any())
+@if (patients == null || !patients.Any())
 {
     <p>Currently, you have no patients assigned to you, so you can't create any documents. Feel free to assign yourself some patients!</p>
 }

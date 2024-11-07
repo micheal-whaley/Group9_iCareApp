@@ -9,7 +9,7 @@
 @if (!Model.Any()){
     <p>Currently, no documents for your patients exist. Feel free to upload or create a document for them!</p>
 }
-else if (!patients.Any())
+else if (patients == null || !patients.Any())
 {
     <p>Currently, you have no patients assigned to you. Feel free to assign yourself some patients!</p>
 

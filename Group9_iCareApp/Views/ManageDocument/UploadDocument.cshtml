@@ -6,7 +6,7 @@
 }
 
 
-@if (!patients.Any())
+@if (patients == null || !patients.Any())
 {
     <p>Currently, you have no patients assigned to you, so you can't upload any documents. Feel free to assign yourself some patients!</p>
 }
