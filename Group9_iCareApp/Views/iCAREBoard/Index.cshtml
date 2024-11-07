@@ -62,7 +62,10 @@
                                             <td>@patient.TreatmentArea</td>
                                             <td>@patient.BedId</td>
                                             <td>
-                                                @foreach (var treatment in patient.TreatmentRecords)
+                                                    @{
+                                                        IEnumerable<TreatmentRecord> workers =  patient.TreatmentRecords.DistinctBy(w=> w.WorkerId);
+                                                    }
+                                                @foreach (var treatment in workers)
                                                 {
                                                     iCAREUser workerUser = db.iCAREUsers.FirstOrDefault(w => w.Id == treatment.Worker.UserAccount);
                                                     
