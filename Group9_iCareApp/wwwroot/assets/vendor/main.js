@@ -237,6 +237,22 @@ const editorConfig = {
 	placeholder: 'Type or paste your content here!',
 	table: {
 		contentToolbar: ['tableColumn', 'tableRow', 'mergeTableCells', 'tableProperties', 'tableCellProperties']
+	},
+	typing: {
+		transformations: {
+			extra: [{ from: 'ace', to: 'Acetaminophen' },
+				{ from: 'add', to: 'Adderall' },
+				{ from: 'amo', to: 'Amoxicillin' },
+				{ from: 'dox', to: 'Doxycycline' },
+				{ from: 'ibu', to: 'Ibuprofen' },
+				{ from: 'cyc', to: 'Cyclobenzaprine' },
+				{ from: 'oze', to: 'Ozempic' },
+				{ from: 'nar', to: 'Narcan' },
+				{ from: 'nal', to: 'Naltrexone' },
+				{ from: 'mel', to: 'Melatonin' },
+				{ from: 'via', to: 'Viagra' },
+				{ from: 'xan', to: 'Xanax' }],
+		}
 	}
 };
 
