@@ -15,6 +15,10 @@ public partial class TreatmentRecord
 
     public int? WorkerId { get; set; }
 
+    public int? DrugId { get; set; }
+
+    public virtual DrugsDictionary? Drug { get; set; }
+
     public virtual PatientRecord? Patient { get; set; }
 
     public virtual iCAREWorker? Worker { get; set; }
