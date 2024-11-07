@@ -118,14 +118,15 @@ public class AssignPatientController : Controller
                 }
 
                 if (worker.Profession == "Doctor" &&
-                    !patient.TreatmentRecords.Any(t => t.Worker.Profession == "Nurse"))
+
+                    !patient.TreatmentRecords.Any(t => t.Worker?.Profession == "Nurse"))
                 {
                     _logger.LogWarning("Skipping patient {PatientId}: requires nurse before doctor", patientId);
                     continue;
                 }
 
                 if (worker.Profession == "Nurse" &&
-                    patient.TreatmentRecords.Count(t => t.Worker.Profession == "Nurse") >= 3)
+                    patient.TreatmentRecords.Count(t => t.Worker?.Profession == "Nurse") >= 3)
                 {
                     _logger.LogWarning("Skipping patient {PatientId}: max nurses assigned", patientId);
                     continue;
