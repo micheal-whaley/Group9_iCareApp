@@ -1,4 +1,5 @@
 ﻿using Group9_iCareApp.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 
@@ -14,26 +15,6 @@ namespace Group9_iCareApp.Controllers
         {
             _context = context;
         }
-
-        // GET: DisplayMyBoard for logged-on worker
-        //[HttpGet("DisplayMyBoard#{workerID}")]
-        //public IActionResult Index()
-        //{
-        //    //Console.WriteLine("In DisplayMyBoard index\n");
-        //    //// Fetch data from the database and check if workerID is valid
-        //    //var workerExists = CheckWorkerExists(workerID);
-        //    //if (!workerExists)
-        //    //{
-        //    //    Console.WriteLine("Worker doesn't exist\n");
-        //    //    // Handle the case where the workerID does not exist
-
-        //    //    return View("Error", "Worker ID does not exist.");
-        //    //}
-        //    //// Fetch data from database.
-        //    //var myPatients = RetrieveMyPatients(workerID);
-        //    //return View(myPatients);
-        //    return View();
-        //}
         public IActionResult Index()
         {
 

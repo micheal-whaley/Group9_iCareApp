@@ -12,6 +12,7 @@ public class iCAREBoardController : Controller
     private readonly iCAREDBContext _context;
     private readonly ILogger<iCAREBoardController> _logger;
 
+
     public iCAREBoardController(iCAREDBContext context, ILogger<iCAREBoardController> logger)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -100,7 +101,9 @@ public class iCAREBoardController : Controller
             var worker = await _context.iCAREWorkers
                 .FirstOrDefaultAsync(w => w.UserAccount == userid);
 
-            if (worker == null)
+            var user = _context.iCAREUsers
+                .FirstOrDefault(w => w.Id == userid);
+            if (worker == null || user == null)
             {
                 Console.WriteLine("Inside assign patient\n");
                 return NotFound("Worker not found");
@@ -122,7 +125,7 @@ public class iCAREBoardController : Controller
 
                 if (worker.Profession == "Doctor" &&
 
-                    !patient.TreatmentRecords.Any(t => t.Worker?.Profession == "Nurse"))
+                    (!patient.TreatmentRecords.Any(t => t.Worker?.Profession == "Nurse") || patient.TreatmentRecords.Count(t => t.Worker?.Profession == "Doctor") >= 1))
                 {
                     _logger.LogWarning("Skipping patient {PatientId}: requires nurse before doctor", patientId);
                     continue;
@@ -146,7 +149,7 @@ public class iCAREBoardController : Controller
                     PatientId = patientId,
                     WorkerId = worker.Id,
                     TreatmentDate = DateTime.UtcNow,
-                    Description = $"Initial assignment of {worker.Profession} to patient"
+                    Description = $"Initial assignment of {worker.Profession} {user.Fname} {user.Lname}  to patient"
                 };
 
                 _context.TreatmentRecords.Add(treatmentRecord);
