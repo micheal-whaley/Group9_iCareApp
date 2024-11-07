@@ -20,3 +20,16 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.delete {
+    color: white;
+    background: #e06b6b;
+}
+
+    .delete:hover {
+        background: #9c4a46
+    }
+
+    .delete:active {
+
+    }
