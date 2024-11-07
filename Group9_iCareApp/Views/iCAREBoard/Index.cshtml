@@ -11,15 +11,14 @@
 <div class="container mt-4">
     <h2>Assign Patients</h2>
 
-    <a href="@Url.Action("CreatePatient", "AssignPatient")" class="btn btn-success mb-4">Create New Patient</a>
+    <a href="@Url.Action("CreatePatient", "iCAREBoard")" class="btn btn-success mb-4">Create New Patient</a>
 
-    @if (user != null)
+    @if (user != null && worker != null)
     {
-        //var worker = ViewBag.CurrentWorker;
             <div class="alert alert-info">
                 Current Worker: @user.Fname @user.Lname (@worker.Profession)
             </div>
-    }
+
     
     <form method="post" action="@Url.Action("AssignPatients")">
         <input type="hidden" name="workerEmail" value="@ViewBag.WorkerEmail" />
@@ -86,4 +85,6 @@
         <input type="hidden" name="userid" value="@user.Id" />
         <button type="submit" class="btn btn-primary">Assign Selected Patients</button>
     </form>
+
+    }
 </div>
