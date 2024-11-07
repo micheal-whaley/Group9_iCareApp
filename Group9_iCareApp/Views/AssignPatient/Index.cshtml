@@ -12,18 +12,6 @@
     <h2>Assign Patients</h2>
 
     <a href="@Url.Action("CreatePatient", "AssignPatient")" class="btn btn-success mb-4">Create New Patient</a>
-    <div class="card mb-4">
-        <div class="card-body">
-            <form method="get" action="@Url.Action("Index")" class="form-inline">
-                <div class="form-group">
-                    <label for="workerEmail" class="mr-2">Worker Email:</label>
-                    <input type="email" class="form-control" id="workerEmail" name="workerEmail"
-                           value="@ViewBag.WorkerEmail" required />
-                </div>
-                <button type="submit" class="btn btn-primary ml-2">Load Worker</button>
-            </form>
-        </div>
-    </div>
 
     @if (user != null)
     {
@@ -62,7 +50,14 @@
                                     {
                                         <tr>
                                             <td>
-                                                <input type="checkbox" name="patientIds" value="@patient.Id" />
+                                                @if (patient.TreatmentRecords.FirstOrDefault(w => w.WorkerId == worker.Id) != null)
+                                                {
+                                                    <input type="checkbox" disabled name="patientIds" value="@patient.Id" />
+                                                } else
+                                                {
+                                                    <input type="checkbox" name="patientIds" value="@patient.Id" />
+                                                }
+
                                             </td>
                                             <td>@patient.Fname @patient.Lname</td>
                                             <td>@patient.TreatmentArea</td>
@@ -70,9 +65,8 @@
                                             <td>
                                                 @foreach (var treatment in patient.TreatmentRecords)
                                                 {
-                                                    //@{
-                                                        iCAREUser workerUser = db.iCAREUsers.FirstOrDefault(w => w.Id == treatment.Worker.UserAccount);
-                                                    //}
+                                                    iCAREUser workerUser = db.iCAREUsers.FirstOrDefault(w => w.Id == treatment.Worker.UserAccount);
+                                                    
                                                     <div>
                                                         @workerUser.Fname
                                                         @workerUser.Lname

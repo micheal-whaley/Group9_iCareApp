@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Immutable;
+using System.Linq;
 
 public class AssignPatientController : Controller
 {
@@ -124,6 +125,11 @@ public class AssignPatientController : Controller
                     !patient.TreatmentRecords.Any(t => t.Worker?.Profession == "Nurse"))
                 {
                     _logger.LogWarning("Skipping patient {PatientId}: requires nurse before doctor", patientId);
+                    continue;
+                }
+
+                if(patient.TreatmentRecords.FirstOrDefault(w => w.WorkerId == worker.Id) != null){
+                    _logger.LogWarning("Skipping patient {PatientId}: worker already assigned", patientId);
                     continue;
                 }
 
