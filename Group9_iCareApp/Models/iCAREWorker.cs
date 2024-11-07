@@ -9,6 +9,12 @@ public partial class iCAREWorker
 
     public string Profession { get; set; } = null!;
 
+    public string ProfessionNavigationProfession { get; set; } = null!;
+
+    public string? WorkerRoleProfession { get; set; }
+
+    public string? AccountNavigationId { get; set; }
+
     public string UserAccount { get; set; } = null!;
 
     public virtual iCAREUser AccountNavigation { get; set; } = null!;

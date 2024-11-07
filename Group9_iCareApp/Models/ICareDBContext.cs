@@ -117,29 +117,32 @@ public partial class iCAREDBContext : IdentityDbContext<iCAREUser>
     
         });
 
-        //modelBuilder.Entity<iCAREWorker>(entity =>
-        //{
-        //    entity.HasKey(e => e.Id).HasName("PK__iCAREWor__3214EC27C2015F25");
+        modelBuilder.Entity<iCAREWorker>(entity =>
+        {
+            entity.ToTable("iCAREWorkers");
 
-        //    entity.ToTable("iCAREWorker");
+            entity.HasIndex(e => e.ProfessionNavigationProfession, "IX_iCAREWorkers_ProfessionNavigationProfession");
 
-        //    entity.Property(e => e.Id)
-        //        //.ValueGeneratedNever()
-        //        .HasColumnName("ID");
-        //    entity.Property(e => e.Profession)
-        //        .HasMaxLength(10)
-        //        .IsUnicode(false);
+            entity.Property(e => e.AccountNavigationId)
+                .HasMaxLength(450)
+                .HasDefaultValueSql("(NULL)");
+            entity.Property(e => e.ProfessionNavigationProfession)
+                .HasMaxLength(10)
+                .IsUnicode(false);
+            entity.Property(e => e.UserAccount).HasMaxLength(450);
+            entity.Property(e => e.WorkerRoleProfession)
+                .HasMaxLength(10)
+                .IsUnicode(false)
+                .HasDefaultValueSql("(NULL)");
 
-        //    entity.HasOne(d => d.IdNavigation).WithOne(p => p.ICareworker)
-        //        .HasForeignKey<iCAREWorker>(d => d.Id)
-        //        .OnDelete(DeleteBehavior.ClientSetNull)
-        //        .HasConstraintName("FK__iCAREWorker__ID__398D8EEE");
+            //entity.HasOne(d => d.ProfessionNavigationProfessionNavigation).WithMany(p => p.ICareworkers).HasForeignKey(d => d.ProfessionNavigationProfession);
 
-        //    entity.HasOne(d => d.ProfessionNavigation).WithMany(p => p.ICareworkers)
-        //        .HasForeignKey(d => d.Profession)
-        //        .OnDelete(DeleteBehavior.ClientSetNull)
-        //        .HasConstraintName("FK_iCAREWorker_WorkerRole1");
-        //});
+            //entity.HasOne(d => d.UserAccountNavigation).WithMany(p => p.ICareworkers)
+            //    .HasForeignKey(d => d.UserAccount)
+            //    .OnDelete(DeleteBehavior.ClientSetNull)
+            //    .HasConstraintName("FK_ACCOUNT");
+        });
+
 
         modelBuilder.Entity<Location>(entity =>
         {

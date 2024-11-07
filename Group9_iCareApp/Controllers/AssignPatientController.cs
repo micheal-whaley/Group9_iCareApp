@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Group9_iCareApp.Models;
+﻿using Group9_iCareApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
 
 namespace Group9_iCareApp.Controllers
 {
@@ -22,7 +18,7 @@ namespace Group9_iCareApp.Controllers
         private const int MAX_NURSES_PER_PATIENT = 3;
         public List<Location> locations = new List<Location>();
 
-        public AssignPatientController(iCAREDBContext context, ILogger<AssignPatientController> logger)
+        public AssignPatientController(iCAREDBContext context)
         {
             _context = context ?? throw new ArgumentNullException(nameof(context));
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
@@ -72,20 +68,9 @@ namespace Group9_iCareApp.Controllers
         [HttpGet("patients")]
         public ActionResult<IEnumerable<PatientRecord>> GetAllPatients()
         {
-            try
-            {
-                var patients = _context.PatientRecords
-                    .AsNoTracking()
-                    .ToList();
-
-                return Ok(patients);
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error retrieving patients");
-                return StatusCode(420, "An error occurred while retrieving patients");
-            }
-        }
+            var patientRecords = await _context.PatientRecords
+                .Include(p => p.Location)  // You can include other related entities if necessary
+                .ToListAsync();
 
 
 
@@ -261,4 +246,4 @@ namespace Group9_iCareApp.Controllers
     {
         public List<string> Messages { get; set; } = new List<string>();
     }
-}
+} 
