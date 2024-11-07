@@ -2,6 +2,7 @@
 @{
     ViewBag.Title = "Patient Creation";
     var locations = (SelectList)ViewData["Locations"];
+    var bloodGroups = (SelectList)ViewData["BloodGroups"];
 }
 
 <h2>Create New Patient</h2>
@@ -33,23 +34,23 @@
     </div>
 
     <div class="form-group">
-        <label class="mt-4" for="Height">Height</label>
-        <input class="form-control mt-4" type="number" asp-for="Height" />
+        <label class="mt-4" for="Height">Height (inches)</label>
+        <input class="form-control mt-4" type="number" asp-for="Height" step="1" />
     </div>
 
     <div class="form-group">
-        <label class="mt-4" for="Weight">Weight</label>
-        <input class="form-control mt-4" type="number" asp-for="Weight" />
+        <label class="mt-4" for="Weight">Weight (pounds)</label>
+        <input class="form-control mt-4" type="number" asp-for="Weight" step="0.01" />
     </div>
 
     <div class="form-group">
         <label class="mt-4" for="BloodGroup">Blood Group</label>
-        <input class="form-control mt-4" type="text" asp-for="BloodGroup" />
+        <select asp-for="BloodGroup" asp-items="bloodGroups" class="form-select"></select>
     </div>
 
     <div class="form-group">
         <label class="mt-4" for="BedId">Bed ID</label>
-        <input class="form-control mt-4" type="number" asp-for="BedId" />
+        <input class="form-control mt-4" type="text" asp-for="BedId" />
     </div>
 
     <div class="form-group">

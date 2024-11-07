@@ -43,7 +43,19 @@ public class AssignPatientController : Controller
     public IActionResult CreatePatient()
     {
         var locations = _context.Locations.ToList(); // Get the list of locations
+        var bloodGroups = new List<SelectListItem>
+        {
+            new SelectListItem { Text = "A+", Value = "A+" },
+            new SelectListItem { Text = "A-", Value = "A-" },
+            new SelectListItem { Text = "B+", Value = "B+" },
+            new SelectListItem { Text = "B-", Value = "B-" },
+            new SelectListItem { Text = "AB+", Value = "AB+" },
+            new SelectListItem { Text = "AB-", Value = "AB-" },
+            new SelectListItem { Text = "O+", Value = "O+" },
+            new SelectListItem { Text = "O-", Value = "O-" }
+        };
         ViewData["Locations"] = new SelectList(locations, "Id", "Name"); // Pass them as a SelectList
+        ViewData["BloodGroups"] = new SelectList(bloodGroups, "Value", "Text");
         return View();
     }
 
