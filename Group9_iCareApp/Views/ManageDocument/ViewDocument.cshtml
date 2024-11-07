@@ -13,9 +13,9 @@
     <h1>@document.DocumentName</h1>
     <a asp-controller="ManageDocument" asp-action="EditDocument" asp-route-fileName="@document.DocumentName" class="btn btn-primary">Edit Document</a>
     <object data='@Url.Action("ViewPdf", "ManageDocument", new {fileName = document.DocumentName})' width="100%" height="600px" name=@document.DocumentName></object>
-    <h2>Document Details</h2>
+    
     <div>
-    <h4>Document Information</h4>
+        <h1>Document Details</h1>
     <hr />
     <dl class="row">
         <dt class="col-sm-3">

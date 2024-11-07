@@ -81,7 +81,7 @@ namespace Group9_iCareApp.Controllers
             return View("ManageDocument");
         }
 
-        public IActionResult EditDocument(string fileName)
+        public async Task<IActionResult> EditDocument(string fileName)
         {
             var document = db.Documents.Find(fileName);
             if (document == null)
@@ -92,6 +92,7 @@ namespace Group9_iCareApp.Controllers
             ViewData["Document"] = document;
             ViewData["htmlString"] = htmlString;
             ViewData["editOldDoc"] = true;
+            ViewData["patients"] = await CreatePatientSelectList();
             ViewData["drugs"] = db.DrugsDictionaries.ToList();
             return View("ManageDocument");
         }
