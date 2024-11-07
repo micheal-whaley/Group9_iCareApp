@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Aspose.Words;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Group9_iCareApp.Controllers
 {
@@ -28,7 +29,7 @@ namespace Group9_iCareApp.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Palette(string sortOrder)
+        public async Task<IActionResult> Palette(string sortOrder, int? patientId)
         {
             ViewData["NameSortParm"] = sortOrder == "name_asc" ? "name_desc" : "name_asc";
             ViewData["LastModifiedSortParm"] = sortOrder == "modified_asc" ? "modified_desc" : "modified_asc";
@@ -37,9 +38,24 @@ namespace Group9_iCareApp.Controllers
             // Track current sort column and direction
             ViewData["CurrentSortColumn"] = sortOrder?.Split('_')[0] ?? "name"; //Default to name if null
             ViewData["CurrentSortDirection"] = sortOrder?.Split('_')[1] ?? "desc"; // Default to ascending if null
+            ViewData["patients"] = await CreatePatientSelectList();
+
+            // Set sort and filter parameters
+            ViewData["currentSortOrder"] = sortOrder;
+            ViewData["currentPatientId"] = patientId;
 
             // Fetch documents
             var documents = db.Documents.AsQueryable();
+            if (patientId.HasValue)
+            {
+                 documents = documents.Where(d => d.PatientRecordId == patientId);
+            }
+            else
+            {
+                var assignedPatientIds = await FindAssignedPatientIds();
+                documents = documents.Where(d => assignedPatientIds.Contains(d.PatientRecordId));
+            }
+            
 
             documents = sortOrder switch
             {
@@ -55,12 +71,13 @@ namespace Group9_iCareApp.Controllers
             return View(await documents.ToListAsync());
         }
 
-        public IActionResult CreateDocument()
+        public async Task<IActionResult> CreateDocument()
         {
             ViewData["Document"] = new Group9_iCareApp.Models.Document();
             ViewData["htmlString"] = string.Empty; //empty for new document//
             ViewData["editOldDoc"] = false;
-			return View("ManageDocument");
+            ViewData["patients"] = await CreatePatientSelectList();
+            return View("ManageDocument");
         }
 
         public IActionResult EditDocument(string fileName)
@@ -68,9 +85,7 @@ namespace Group9_iCareApp.Controllers
             var document = db.Documents.Find(fileName);
             if (document == null)
             {
-                TempData["ErrorMessage"] = "Document not found";
-                return RedirectToAction("UploadDocument"); //displays error message
-                //change this
+                return RedirectToAction("CreateDocument"); //can't find document, so just attempts to make new one instead.
             }
             var htmlString = ConvertPdfToHtml(document.Data);
             ViewData["Document"] = document;
@@ -104,7 +119,7 @@ namespace Group9_iCareApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult SaveNewDocument(string content, string docName)
+        public IActionResult SaveNewDocument(string content, string docName, Group9_iCareApp.Models.Document patientDocument)
         {
             if (string.IsNullOrEmpty(content) || string.IsNullOrEmpty(docName) || db.Documents.Find(docName + ".pdf") != null) 
             {
@@ -121,7 +136,7 @@ namespace Group9_iCareApp.Controllers
             byte[] bytes = outStream.ToArray();
 
 
-            int workerID = db.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userManager.GetUserId(User)).Id;
+            int workerID = FindCurrentWorkerId();
             Group9_iCareApp.Models.Document document = new()
             {
                 DocumentName = docName + ".pdf",
@@ -130,14 +145,14 @@ namespace Group9_iCareApp.Controllers
                 CreatingWorkerId = workerID,
                 LastModifiedDate = DateTime.Now,
                 ModifyingWorkerId = workerID,
-                //need patient + description
+                PatientRecordId = patientDocument.PatientRecordId
+                //need description
             };
 
-            if (ModelState.IsValid)
-            {
-                db.Documents.Add(document);
-                db.SaveChanges();
-            }
+
+            db.Documents.Add(document);
+            db.SaveChanges();
+
             return RedirectToAction("Palette");
         }
 
@@ -168,19 +183,20 @@ namespace Group9_iCareApp.Controllers
             {
                 document.Data = bytes; //update byte data
                 document.LastModifiedDate = DateTime.Now;
-                document.ModifyingWorkerId = db.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userManager.GetUserId(User)).Id;
+                document.ModifyingWorkerId = FindCurrentWorkerId();
                 db.SaveChanges();
             }
             return RedirectToAction("Palette");
         }
 
-        public IActionResult UploadDocument()
+        public async Task<IActionResult> UploadDocument()
         {
+            ViewData["patients"] = await CreatePatientSelectList();
             return View();
         }
 
         [HttpPost]
-        public async Task<IActionResult> UploadFile(IFormFile file)
+        public async Task<IActionResult> UploadFile(IFormFile file, PatientRecord patient)
         {
             if (file == null || file.Length == 0) 
             {
@@ -221,7 +237,7 @@ namespace Group9_iCareApp.Controllers
                 return RedirectToAction("UploadDocument"); //This should never happen, but just in case.
             }
 
-            int workerID = db.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userManager.GetUserId(User)).Id;
+            int workerID = FindCurrentWorkerId();
             Group9_iCareApp.Models.Document document = new()
             {
                 DocumentName = fileNameNoExtension + ".pdf",
@@ -230,18 +246,14 @@ namespace Group9_iCareApp.Controllers
                 CreatingWorkerId = workerID,
                 LastModifiedDate = DateTime.Now,
                 ModifyingWorkerId = workerID,
-                //patientID + description
+                PatientRecordId = patient.Id
+                //description
             };
 
-            if (ModelState.IsValid)
-            {
-                db.Documents.Add(document);
-                db.SaveChanges();
-                TempData["SuccessMessage"] = "Document uploaded successfully!";
-            }else
-            { 
-                TempData["ErrorMessage"] = "Failed to upload the document. Please check the file and try again.";
-            }
+            db.Documents.Add(document);
+            await db.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Document uploaded successfully!";
+
             return RedirectToAction("UploadDocument");
         }
 
@@ -288,6 +300,24 @@ namespace Group9_iCareApp.Controllers
             pdf.Save(outStream);
             return outStream.ToArray();
 
+        }
+
+        private int FindCurrentWorkerId()
+        {
+            return db.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userManager.GetUserId(User)).Id;
+        }
+        private async Task<List<int?>> FindAssignedPatientIds()
+        {
+            return await db.TreatmentRecords.Where(t => t.WorkerId == FindCurrentWorkerId()).Select(t => t.PatientId).Distinct().ToListAsync();
+        }
+        private async Task<SelectList> CreatePatientSelectList()
+        {
+            var patientIDs = await FindAssignedPatientIds();
+            var patients = await db.PatientRecords.Where(p => patientIDs.Contains(p.Id)).Select(p => new {
+                Id = p.Id,
+                fullName = p.Fname + " " + p.Lname
+            }).ToListAsync();
+            return new SelectList(patients, "Id", "fullName");
         }
     }  
 }

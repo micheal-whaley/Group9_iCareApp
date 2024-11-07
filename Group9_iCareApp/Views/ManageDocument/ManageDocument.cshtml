@@ -4,6 +4,7 @@
     Document document = (Document)ViewData["Document"];
     string htmlString = (string)ViewData["htmlString"];
     bool editOldDoc = (bool)ViewData["editOldDoc"];
+    var patients = (SelectList)ViewData["patients"];
 }
 
 <div class="text-center">
@@ -34,6 +35,8 @@
                 <div class="form-group">
                     <label for="docName">Document Name</label>
                     <input type="text" name="docName" class="form-control" id="docName" placeholder="Enter document name here"/>
+                    <label class="mt-4" for="PatientRecordId">Patient</label>
+                    <select asp-for="PatientRecordId" asp-items=patients class="form-select"></select>
                 </div>
             }
             else

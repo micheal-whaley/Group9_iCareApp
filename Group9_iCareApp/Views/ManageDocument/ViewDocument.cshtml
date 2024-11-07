@@ -2,7 +2,7 @@
 @inject iCAREDBContext db
 @{
     Document document = (Group9_iCareApp.Models.Document)ViewData["Document"];
-    //PatientRecord patient = db.PatientRecords.Find(document.PatientRecordId);
+    PatientRecord patient = db.PatientRecords.Find(document.PatientRecordId);
     iCAREWorker creatingWorker = db.iCAREWorkers.Find(document.CreatingWorkerId);
     iCAREUser creatingUser = db.iCAREUsers.Find(creatingWorker.UserAccount);
     iCAREWorker editingWorker = db.iCAREWorkers.Find(document.ModifyingWorkerId);
@@ -28,7 +28,7 @@
             Patient 
         </dt>
         <dd class="col-sm-9">
-            Later on the Patient.
+            @patient.Fname @patient.Lname
         </dd>
 
         <dt class="col-sm-3">
@@ -58,16 +58,10 @@
         </dd>
     </dl>
 </div>
-
-
 }
 else
 {
     <h3>Sorry!</h3>
     <p>The document you are trying to view cannot be found.</p>
 }
-
-<div>
-    <a href="@Url.Action("Palette", "ManageDocument")">Back to Palette</a>
-</div>
 

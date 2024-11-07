@@ -23,9 +23,9 @@ public partial class Document
 
     public string? Description { get; set; }
 
-    //public virtual ICareworker? CreatingWorker { get; set; }
+    //public virtual iCAREWorker? CreatingWorker { get; set; }
 
-    //public virtual ICareworker? ModifiyingWorker { get; set; }
+    //public virtual iCAREWorker? ModifiyingWorker { get; set; }
 
     //public virtual PatientRecord? Patient { get; set; }
 }

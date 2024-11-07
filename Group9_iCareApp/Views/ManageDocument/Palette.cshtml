@@ -1,17 +1,45 @@
 ﻿@model IEnumerable<Group9_iCareApp.Models.Document>
-
+@{
+    var patients = (SelectList)ViewData["patients"];
+}
 
 <a asp-controller="ManageDocument" asp-action="CreateDocument" class="btn btn-primary">Create New Document</a>
 <a asp-controller="ManageDocument" asp-action="UploadDocument" class="btn btn-secondary">Upload Documents</a>
 
 @if (!Model.Any()){
     <p>Currently, no documents for your patients exist. Feel free to upload or create a document for them!</p>
-}else{
+}
+else if (!patients.Any())
+{
+    <p>Currently, you have no patients assigned to you. Feel free to assign yourself some patients!</p>
 
+}else{
+    <form asp-action="Palette" asp-route-sortOrder=@ViewData["currentSortOrder"] method="get">
+        <div class="form-group">
+            <label for="patientId">Filter by Patient</label>
+            <select name="patientId" class="form-control" id="patientId">
+                <option value="">All Patients</option> <!-- Default option to show all patients -->
+                @foreach (var patient in patients)
+                {
+                    @if (patient.Value.ToString().Equals(ViewData["currentPatientId"]?.ToString()))
+                    {
+                        <option value="@patient.Value" selected>@patient.Text</option>
+                    }else{
+                        <option value="@patient.Value">@patient.Text</option>
+                    }
+                    
+                }
+            </select>
+        </div>
+
+        <div class="mb-3">
+            <button type="submit" class="btn btn-primary">Filter</button>
+        </div>
+    </form>
     <table class="table">
         <tr>
             <th>
-                <a asp-action="Palette" asp-route-sortOrder="@ViewData["NameSortParm"]">
+                <a asp-action="Palette" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-patientId="@ViewData["currentPatientId"]" >
                     @Html.DisplayNameFor(model => model.DocumentName)
                     @if ((string)ViewData["CurrentSortColumn"] == "name")
                     {
@@ -21,7 +49,7 @@
                 </a>
             </th>
             <th>
-                <a asp-action="Palette" asp-route-sortOrder="@ViewData["LastModifiedSortParm"]">
+                <a asp-action="Palette" asp-route-sortOrder="@ViewData["LastModifiedSortParm"]" asp-route-patientId="@ViewData["currentPatientId"]">
                     @Html.DisplayNameFor(model => model.LastModifiedDate)
                     @if ((string)ViewData["CurrentSortColumn"] == "modified")
                     {
@@ -31,7 +59,7 @@
                 </a>
             </th>
             <th>
-                <a asp-action="Palette" asp-route-sortOrder="@ViewData["CreationSortParm"]">
+                <a asp-action="Palette" asp-route-sortOrder="@ViewData["CreationSortParm"]" asp-route-patientId="@ViewData["currentPatientId"]">
                     @Html.DisplayNameFor(model => model.CreationDate)
                     @if ((string)ViewData["CurrentSortColumn"] == "creation")
                     {
