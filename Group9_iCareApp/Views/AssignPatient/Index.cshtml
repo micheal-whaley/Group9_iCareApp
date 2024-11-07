@@ -1,19 +1,24 @@
-﻿@model IEnumerable<Group9_iCareApp.Models.PatientRecord>
+﻿@model List<Group9_iCareApp.Models.PatientRecord>
 
 @{
-    ViewData["Title"] = "Assign Patients";
+    ViewData["Title"] = "Assign Patients to Workers";
 }
 
-<h2>Assign Patients</h2>
+<h2>@ViewData["Title"]</h2>
 
 <table class="table">
     <thead>
         <tr>
-            <th>Patient ID</th>
-            <th>Name</th>
+            <th>ID</th>
+            <th>First Name</th>
+            <th>Last Name</th>
             <th>Address</th>
             <th>Date of Birth</th>
-            <th>Actions</th>
+            <th>Height</th>
+            <th>Weight</th>
+            <th>Blood Group</th>
+            <th>Treatment Area</th>
+            <th>Location</th>
         </tr>
     </thead>
     <tbody>
@@ -21,12 +26,15 @@
         {
             <tr>
                 <td>@patient.Id</td>
-                <td>@patient.Fname @patient.Lname</td>
+                <td>@patient.Fname</td>
+                <td>@patient.Lname</td>
                 <td>@patient.Address</td>
-                <td>@patient.DateOfBirth?.ToString("MM/dd/yyyy")</td>
-                <td>
-                    <a href="@Url.Action("Assign", "AssignPatient", new { id = patient.Id })" class="btn btn-primary">Assign</a>
-                </td>
+                <td>@patient.DateOfBirth?.ToString("yyyy-MM-dd")</td>
+                <td>@patient.Height</td>
+                <td>@patient.Weight</td>
+                <td>@patient.BloodGroup</td>
+                <td>@patient.TreatmentArea</td>
+                <td>@patient.Location?.Name</td>  <!-- Adjust field for location -->
             </tr>
         }
     </tbody>
