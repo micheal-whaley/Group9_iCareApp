@@ -5,6 +5,7 @@
     string htmlString = (string)ViewData["htmlString"];
     bool editOldDoc = (bool)ViewData["editOldDoc"];
     var patients = (SelectList)ViewData["patients"];
+    var drugs = (List<DrugsDictionary>)ViewData["drugs"];
 }
 
 @if (!patients.Any())
@@ -77,4 +78,24 @@ else
         <script type="module" src="../../assets/vendor/main.js"></script>
     </body>
     </html>
+    <!-- Display the drugs table -->
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Shortcut</th>
+                <th>Description</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var drug in drugs)
+            {
+                <tr>
+                    <td>@drug.Name</td>
+                    <td>@drug.Name.Substring(0, 3).ToLowerInvariant()</td>
+                    <td>@drug.Description</td>
+                </tr>
+            }
+        </tbody>
+    </table>
 }

@@ -77,6 +77,7 @@ namespace Group9_iCareApp.Controllers
             ViewData["htmlString"] = string.Empty; //empty for new document//
             ViewData["editOldDoc"] = false;
             ViewData["patients"] = await CreatePatientSelectList();
+            ViewData["drugs"] = db.DrugsDictionaries.ToList();
             return View("ManageDocument");
         }
 
@@ -91,7 +92,8 @@ namespace Group9_iCareApp.Controllers
             ViewData["Document"] = document;
             ViewData["htmlString"] = htmlString;
             ViewData["editOldDoc"] = true;
-			return View("ManageDocument");
+            ViewData["drugs"] = db.DrugsDictionaries.ToList();
+            return View("ManageDocument");
         }
 
         public IActionResult ViewDocument(string fileName)
