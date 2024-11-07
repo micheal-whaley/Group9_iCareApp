@@ -1,4 +1,5 @@
-﻿using Group9_iCareApp.Models;
+﻿
+using Group9_iCareApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Data.SqlClient;
@@ -86,7 +87,7 @@ public class AssignPatientController : Controller
 
 
     [HttpPost]
-    public async Task<IActionResult> AssignPatients(List<int> patientIds, string workerEmail)
+    public async Task<IActionResult> AssignPatients(List<int> patientIds, string userid)
     {
         if (patientIds == null || !patientIds.Any())
         {
@@ -96,14 +97,15 @@ public class AssignPatientController : Controller
         try
         {
             var worker = await _context.iCAREWorkers
-                .Include(w => w.AccountNavigation)
-                .FirstOrDefaultAsync(w => w.AccountNavigation.Email == workerEmail);
+                .FirstOrDefaultAsync(w => w.UserAccount == userid);
 
             if (worker == null)
             {
+                Console.WriteLine("Inside assign patient\n");
                 return NotFound("Worker not found");
             }
 
+            Console.WriteLine("About to loop through all patient ids\n");
             foreach (var patientId in patientIds)
             {
                 var patient = await _context.PatientRecords
@@ -131,7 +133,7 @@ public class AssignPatientController : Controller
                     _logger.LogWarning("Skipping patient {PatientId}: max nurses assigned", patientId);
                     continue;
                 }
-
+                Console.WriteLine("Creating treatment record\n");
                 var treatmentRecord = new TreatmentRecord
                 {
                     TreatmentId = Guid.NewGuid().ToString(),
@@ -145,7 +147,7 @@ public class AssignPatientController : Controller
             }
 
             await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index), new { workerEmail });
+            return RedirectToAction(nameof(Index), new { userid });
         }
         catch (Exception ex)
         {
@@ -166,6 +168,7 @@ public class AssignPatientController : Controller
 
             if (worker == null)
             {
+                Console.WriteLine("Inside unassign patient\n");
                 return NotFound("Worker not found");
             }
 

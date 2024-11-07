@@ -1,4 +1,12 @@
 ﻿@model IEnumerable<IGrouping<Location, PatientRecord>>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<iCAREUser> UserManager
+@inject iCAREDBContext db
+@{
+    string userID = UserManager.GetUserId(User) ?? string.Empty;
+    iCAREWorker worker = db.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userID);
+    iCAREUser user = db.iCAREUsers.FirstOrDefault(w => w.Id == userID);
+}
 
 <div class="container mt-4">
     <h2>Assign Patients</h2>
@@ -17,19 +25,21 @@
         </div>
     </div>
 
-    @if (ViewBag.CurrentWorker != null)
+    @if (user != null)
     {
-        var worker = ViewBag.CurrentWorker;
+        //var worker = ViewBag.CurrentWorker;
             <div class="alert alert-info">
-                Current Worker: @worker.AccountNavigation.Fname @worker.AccountNavigation.Lname (@worker.Profession)
+                Current Worker: @user.Fname @user.Lname (@worker.Profession)
             </div>
     }
-
+    
     <form method="post" action="@Url.Action("AssignPatients")">
         <input type="hidden" name="workerEmail" value="@ViewBag.WorkerEmail" />
 
         @foreach (var locationGroup in Model)
         {
+            @if (locationGroup.Key.Id == user.locationID)
+            {
                 <div class="card mb-4">
                     <div class="card-header">
                         <h4>Location: @locationGroup.Key.Name</h4>
@@ -48,34 +58,38 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                @foreach (var patient in locationGroup)
-                                {
-                                            <tr>
-                                                <td>
-                                                    <input type="checkbox" name="patientIds" value="@patient.Id" />
-                                                </td>
-                                                <td>@patient.Fname @patient.Lname</td>
-                                                <td>@patient.TreatmentArea</td>
-                                                <td>@patient.BedId</td>
-                                                <td>
-                                            @foreach (var treatment in patient.TreatmentRecords)
-                                            {
-                                                            <div>
-                                                    @treatment.Worker.AccountNavigation.Fname
-                                                    @treatment.Worker.AccountNavigation.Lname
-                                                                (@treatment.Worker.Profession)
-                                                            </div>
-                                            }
-                                                </td>
-                                            </tr>
-                                }
+                                    @foreach (var patient in locationGroup)
+                                    {
+                                        <tr>
+                                            <td>
+                                                <input type="checkbox" name="patientIds" value="@patient.Id" />
+                                            </td>
+                                            <td>@patient.Fname @patient.Lname</td>
+                                            <td>@patient.TreatmentArea</td>
+                                            <td>@patient.BedId</td>
+                                            <td>
+                                                @foreach (var treatment in patient.TreatmentRecords)
+                                                {
+                                                    //@{
+                                                        iCAREUser workerUser = db.iCAREUsers.FirstOrDefault(w => w.Id == treatment.Worker.UserAccount);
+                                                    //}
+                                                    <div>
+                                                        @workerUser.Fname
+                                                        @workerUser.Lname
+                                                        (@treatment.Worker.Profession)
+                                                    </div>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
                                 </tbody>
                             </table>
                         </div>
                     </div>
                 </div>
+            }
         }
-
+        <input type="hidden" name="userid" value="@user.Id" />
         <button type="submit" class="btn btn-primary">Assign Selected Patients</button>
     </form>
 </div>
