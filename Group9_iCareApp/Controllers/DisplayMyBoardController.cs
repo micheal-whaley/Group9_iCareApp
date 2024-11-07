@@ -1,6 +1,7 @@
 ﻿using Group9_iCareApp.Models;
 using Microsoft.AspNetCore.Mvc;
 
+
 // anything that is commented out is that way to avoid errors for now until the models are fully implemented
 
 namespace Group9_iCareApp.Controllers
@@ -15,19 +16,28 @@ namespace Group9_iCareApp.Controllers
         }
 
         // GET: DisplayMyBoard for logged-on worker
-        [HttpGet("DisplayMyBoard#{workerID}")]
-        public IActionResult Index(int workerID)
+        //[HttpGet("DisplayMyBoard#{workerID}")]
+        //public IActionResult Index()
+        //{
+        //    //Console.WriteLine("In DisplayMyBoard index\n");
+        //    //// Fetch data from the database and check if workerID is valid
+        //    //var workerExists = CheckWorkerExists(workerID);
+        //    //if (!workerExists)
+        //    //{
+        //    //    Console.WriteLine("Worker doesn't exist\n");
+        //    //    // Handle the case where the workerID does not exist
+
+        //    //    return View("Error", "Worker ID does not exist.");
+        //    //}
+        //    //// Fetch data from database.
+        //    //var myPatients = RetrieveMyPatients(workerID);
+        //    //return View(myPatients);
+        //    return View();
+        //}
+        public IActionResult Index()
         {
-            // Fetch data from the database and check if workerID is valid
-            var workerExists = CheckWorkerExists(workerID);
-            if (!workerExists)
-            {
-                // Handle the case where the workerID does not exist
-                return View("Error", "Worker ID does not exist.");
-            }
-            // Fetch data from database.
-            var myPatients = RetrieveMyPatients(workerID);
-            return View(myPatients);
+
+            return View();
         }
         private bool CheckWorkerExists(int workerID)
         {
@@ -49,7 +59,6 @@ namespace Group9_iCareApp.Controllers
         {
             return RedirectToAction("Index", "ManagePatient", new { patientID = patientId }); // redirect to christian's managepatientview.
         }
-
 
         // Retrieve all patients assigned to the specified worker.
         public List<PatientRecord> RetrieveMyPatients(int workerID)

@@ -1,12 +1,20 @@
 ﻿@model List<Group9_iCareApp.Models.PatientRecord>
+@using Microsoft.AspNetCore.Identity
+@inject UserManager<iCAREUser> UserManager
+@inject iCAREDBContext db
 
 @{
     ViewData["Title"] = "My Patient Board";
+    string userID = UserManager.GetUserId(User) ?? string.Empty;
+    iCAREWorker worker = db.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userID);
+    // IQueryable<TreatmentRecord> treatments = db.TreatmentRecords.DistinctBy(w => w.WorkerId);  //DistinctBy(w => w.PatientId);
+    var filteredPatients = db.PatientRecords
+    .Where(c => c.TreatmentRecords.Any(i => i.WorkerId == worker.Id)).ToList();
 }
 
 <h1>@ViewData["Title"]</h1>
 
-@if (Model != null && Model.Any())
+@if (worker != null)
 {
     <table class="table">
         <thead>
@@ -18,17 +26,23 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var patient in Model)
+            @foreach (var patient in filteredPatients)
+        
             {
-                <tr>
-                    <td>@patient.Id</td>
-                    <td>@patient.Fname</td> <!-- Replace with the actual property for patient's name -->
-                    <td>@patient.DateOfBirth</td> <!-- Replace with the actual property for patient's status -->
-                    <td>
-                        <a asp-action="Details" asp-route-patientId="@patient.Id" class="btn btn-info">View Details</a>
-                        <a asp-action="ManagePatient" asp-route-patientId="@patient.Id" class="btn btn-primary">Manage</a>
-                    </td>
-                </tr>
+     
+                if(patient != null)
+                {
+                    <tr>
+                        <td>@patient.Id</td>
+                        <td>@patient.Fname</td> <!-- Replace with the actual property for patient's name -->
+                        <td>@patient.DateOfBirth</td> <!-- Replace with the actual property for patient's status -->
+                        <td>
+                            <a asp-action="Details" asp-route-patientId="@patient.Id" class="btn btn-info">View Details</a>
+                            <a asp-action="ManagePatient" asp-route-patientId="@patient.Id" class="btn btn-primary">Manage</a>
+                        </td>
+                    </tr>
+                }
+                
             }
         </tbody>
     </table>
