@@ -16,56 +16,63 @@
     int isAdmin = DBContext.iCAREUsers.Find(userID)?.Priveleged ?? 0;
 }
 
-<div class="row">
-    <div class="col-md-4">
-        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
-            <h2>Create a Worker Account.</h2>
-            <hr />
-            <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
-                <label asp-for="Input.Email">Email</label>
-                <span asp-validation-for="Input.Email" class="text-danger"></span>
-            </div>
+@if (isAdmin == 1) // Only admins can make new accounts
+{
+    <div class="row">
+        <div class="col-md-4">
+            <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+                <h2>Create a Worker Account.</h2>
+                <hr />
+                <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="name@example.com" />
+                    <label asp-for="Input.Email">Email</label>
+                    <span asp-validation-for="Input.Email" class="text-danger"></span>
+                </div>
 
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Fname" class="form-control" aria-required="true" placeholder="first name" />
-                <label asp-for="Input.Fname">First Name</label>
-                <span asp-validation-for="Input.Fname" class="text-danger"></span>
-            </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Fname" class="form-control" aria-required="true" placeholder="first name" />
+                    <label asp-for="Input.Fname">First Name</label>
+                    <span asp-validation-for="Input.Fname" class="text-danger"></span>
+                </div>
 
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Lname" class="form-control" aria-required="true" placeholder="last name" />
-                <label asp-for="Input.Lname">Last Name</label>
-                <span asp-validation-for="Input.Lname" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Lname" class="form-control" aria-required="true" placeholder="last name" />
+                    <label asp-for="Input.Lname">Last Name</label>
+                    <span asp-validation-for="Input.Lname" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
 
-                <select asp-for="Input.locationID" asp-items="@Model.Locations" class="form-select"></select>
-                <label asp-for="Input.locationID">Location name</label>
-                <span asp-validation-for="Input.locationID" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <select asp-for="Input.profession" asp-items="@Model.Professions" class="form-select"></select>
-                <label asp-for="Input.profession">Profession</label>
-                <span asp-validation-for="Input.profession" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.Password">Password</label>
-                <span asp-validation-for="Input.Password" class="text-danger"></span>
-            </div>
-            <div class="form-floating mb-3">
-                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
-                <label asp-for="Input.ConfirmPassword">Confirm Password</label>
-                <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
-            </div>
-            <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Create</button>
-        </form>
+                    <select asp-for="Input.locationID" asp-items="@Model.Locations" class="form-select"></select>
+                    <label asp-for="Input.locationID">Location name</label>
+                    <span asp-validation-for="Input.locationID" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <select asp-for="Input.profession" asp-items="@Model.Professions" class="form-select"></select>
+                    <label asp-for="Input.profession">Profession</label>
+                    <span asp-validation-for="Input.profession" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                    <label asp-for="Input.Password">Password</label>
+                    <span asp-validation-for="Input.Password" class="text-danger"></span>
+                </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="password" />
+                    <label asp-for="Input.ConfirmPassword">Confirm Password</label>
+                    <span asp-validation-for="Input.ConfirmPassword" class="text-danger"></span>
+                </div>
+                <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Create</button>
+            </form>
+        </div>
     </div>
-</div>
 
-@section Scripts {
+    @section Scripts {
     <partial name="_ValidationScriptsPartial" />
+    }
+}
+else
+{
+    <h1>Unable to find this page.</h1>
 }
