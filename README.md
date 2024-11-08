@@ -28,6 +28,9 @@ Group 9 **iCARE** implementation for CS 4320/7320
 * **Treatment Management:**
     * Allows for adding and managing treatment plans for each patient.
     * Allows assigning of drugs to patients.
+ 
+* **Logging in:**
+The admin login is admin@admin.com and the password is Password1!. More users can be created from there.
 
 ## Installation
 1. Clone the repo
