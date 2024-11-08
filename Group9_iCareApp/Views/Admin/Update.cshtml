@@ -14,25 +14,11 @@
     </div>
     
     <form asp-action="Update" asp-controller="Admin" method="post">
-        <input type="hidden" name="workerId" value="@worker.Id" />
+        <input type="hidden" name="accountGUID" value="@worker.UserAccount" />
         <label class="mt-4" for="fname">First Name</label>
         <input class="form-control" type="text" name="fname" value="@account.Fname" />
         <label class="mt-4" for="lname">Last Name</label>
         <input class="form-control" type="text" name="lname" value="@account.Lname" />
-        <label class="mt-4" for="profession">Profession</label>
-        <select class="form-select" name="profession">
-            @if (@worker.Profession == "Doctor")
-            {
-                <option id="Doctor" value="Doctor" selected>Doctor</option>
-                <option id="Nurse" value="Nurse">Nurse</option>
-            }
-            else
-            {
-                <option id="Doctor" value="Doctor">Doctor</option>
-                <option id="Nurse" value="Nurse" selected>Nurse</option>
-            }
-
-        </select>
         <label class="mt-4" for="location">Location</label>
         <select class="form-select" name="location">
             @foreach (Location location in context.Locations)

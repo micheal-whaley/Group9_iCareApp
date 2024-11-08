@@ -34,29 +34,27 @@ namespace Group9_iCareApp.Controllers
         }
 
         [HttpPost]
-        public IActionResult Update(int workerId, 
-                                    string fname, string lname, 
-                                    string profession, int location)
+        public async Task<IActionResult> Update(string accountGUID, 
+                                    string fname, 
+                                    string lname, 
+                                    int location)
         {
-            // Takes the workerId and updates the iCAREWorker and iCAREUser associated with it
-            iCAREWorker? worker = context.iCAREWorkers.Find(workerId);
-            iCAREUser? user = context.iCAREUsers.Find(worker?.UserAccount ?? string.Empty);
+            // Takes the GUID and updates the iCAREUser associated with it
+            iCAREUser? user = context.iCAREUsers.Find(accountGUID);
 
             // Doesn't exist
-            if (user == null || worker == null)
+            if (user == null)
             {
                 Redirect("~/Views/Shared/Error");
             }
-            // Update the worker
-            worker.Profession = profession;
-            context.iCAREWorkers.Update(worker);
+
             // update the user
             user.Fname = fname;
             user.Lname = lname;
             user.locationID = location;
-            context.iCAREUsers.Update(user);
+            context.iCAREUsers.Update(user);    // Update the record R where R.Id == User.Id
 
-            context.SaveChanges();
+            await context.SaveChangesAsync();  // Save the changes to the instance of the DB
             return RedirectToAction("Success");
         }
 
