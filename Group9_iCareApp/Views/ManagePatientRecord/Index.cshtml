@@ -20,21 +20,21 @@
         <input class="form-control mt-4" type="text" value="@patient.Address" asp-for="Address" />
         <label class="mt-4">Date of Birth</label>
         <input class="form-control mt-4" type="date" value="@patient.DateOfBirth?.ToString("yyyy-MM-dd")" asp-for="DateOfBirth" />
-        <label class="mt-4">Height</label>
+        <label class="mt-4">Height (Inches)</label>
         <input class="form-control mt-4" type="number" value="@patient.Height" asp-for="Height" />
-        <label class="mt-4">Weight</label>
+        <label class="mt-4">Weight (Pounds)</label>
         <input class="form-control mt-4" type="number" value="@patient.Weight" asp-for="Weight" />
-        <label class="mt-4" for="BloodGroup">Blood Group</label>
+        <label class="mt-4" for="BloodGroup">Blood Type</label>
         <select asp-for="BloodGroup" class="form-select mt-4">
             @foreach (SelectListItem type in bloodGroups)
             {
-                if (type.Equals(patient.BloodGroup))
+                if (type.Value == patient.BloodGroup)
                 {
-                    <option value="@patient.BloodGroup" selected>@patient.BloodGroup</option>
+                    <option value="@type.Value" selected>@type.Value</option>
                 }
                 else
                 {
-                    <option value="@patient.BloodGroup">@patient.BloodGroup</option>
+                    <option value="@type.Value">@type.Value</option>
                 }
 
             }
