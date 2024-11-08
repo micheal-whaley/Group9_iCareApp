@@ -153,7 +153,7 @@ public class iCAREBoardController : Controller
                     TreatmentId = Guid.NewGuid().ToString(),
                     PatientId = patientId,
                     WorkerId = worker.Id,
-                    TreatmentDate = DateTime.UtcNow,
+                    TreatmentDate = DateTime.Now,
                     Description = $"Initial assignment of {worker.Profession} {user.Fname} {user.Lname} to patient"
                 };
 
@@ -168,37 +168,6 @@ public class iCAREBoardController : Controller
         {
             _logger.LogError(ex, "Error assigning patients");
             return StatusCode(500, "An error occurred while assigning patients.");
-        }
-    }
-
-    // POST: Unassign a patient from a specified worker
-    [HttpPost]
-    public async Task<IActionResult> UnassignPatient(int patientId, string workerEmail)
-    {
-        try
-        {
-            var worker = await _context.iCAREWorkers
-                .Include(w => w.AccountNavigation)
-                .FirstOrDefaultAsync(w => w.AccountNavigation.Email == workerEmail);
-
-            if (worker == null)
-                return NotFound("Worker not found");
-
-            var treatmentRecord = await _context.TreatmentRecords
-                .FirstOrDefaultAsync(t => t.PatientId == patientId && t.WorkerId == worker.Id);
-
-            if (treatmentRecord != null)
-            {
-                _context.TreatmentRecords.Remove(treatmentRecord);
-                await _context.SaveChangesAsync();
-            }
-
-            return RedirectToAction(nameof(Index), new { workerEmail });
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error unassigning patient {PatientId}", patientId);
-            return StatusCode(500, "An error occurred while unassigning the patient.");
         }
     }
 }

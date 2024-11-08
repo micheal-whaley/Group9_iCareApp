@@ -3,57 +3,81 @@
 
 @{
     ViewData["Title"] = "Patient Details";
+    string error = (string)TempData["ErrorMessage"];
 }
 
-<h1>Patient Details</h1>
-
-<div>
-    <h2>@Model.Fname @Model.Lname</h2>
-    <p><strong>ID:</strong> @Model.Id</p>
-    <p><strong>Address:</strong> @Model.Address</p>
-    <p><strong>Date of Birth:</strong> @Model.DateOfBirth?.ToString("yyyy-MM-dd")</p>
-    <p><strong>Height:</strong> @Model.Height cm</p>
-    <p><strong>Weight:</strong> @Model.Weight kg</p>
-    <p><strong>Blood Group:</strong> @Model.BloodGroup</p>
-    <p><strong>Bed ID:</strong> @Model.BedId</p>
-    <p><strong>Treatment Area:</strong> @Model.TreatmentArea</p>
-</div>
-
-<h3>Treatment Records</h3>
-
-@if (db.TreatmentRecords.Any(w => w.PatientId == Model.Id))
+@if(error != null)
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Treatment ID</th>
-                <th>Description</th>
-                <th>Treatment Date</th>
-                <th>Worker ID</th>
-            </tr>
-        </thead>
-        <tbody>
-
-            @{
-                var filteredTreatments = db.TreatmentRecords
-                .Where(c => c.PatientId == Model.Id ).ToList();
-            }
-
-            @foreach (var treatment in filteredTreatments)
-            {
-                <tr>
-                    <td>@treatment.TreatmentId</td>
-                    <td>@treatment.Description</td>
-                    <td>@treatment.TreatmentDate?.ToString("yyyy-MM-dd")</td>
-                    <td>@treatment.WorkerId</td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="alert alert-danger" role="alert">
+        @error
+    </div>
 }
 else
 {
-    <p>No treatment records found for this patient.</p>
+    <h1>@ViewData["Title"]</h1>
+
+    <div class="mb-3">
+        <h2>@Model.Fname @Model.Lname</h2>
+        <p><strong>Address:</strong> @Model.Address</p>
+        <p><strong>Date of Birth:</strong> @Model.DateOfBirth?.ToString("yyyy-MM-dd")</p>
+        <p><strong>Height:</strong> @Model.Height cm</p>
+        <p><strong>Weight:</strong> @Model.Weight kg</p>
+        <p><strong>Blood Group:</strong> @Model.BloodGroup</p>
+        <p><strong>Bed ID:</strong> @Model.BedId</p>
+        <p><strong>Treatment Area:</strong> @Model.TreatmentArea</p>
+    </div>
+
+    <br />
+    <a asp-controller="ManageDocument" asp-action="Palette" asp-route-patientId="@Model.Id" class="btn btn-primary">View Associated Documents</a>
+    <br />
+    <br />
+    <h3>Treatment Records</h3>
+
+    @if (db.TreatmentRecords.Any(w => w.PatientId == Model.Id))
+    {
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Drug</th>
+                    <th>Treatment Date</th>
+                    <th>Worker</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @{
+                    var filteredTreatments = db.TreatmentRecords
+                    .Where(c => c.PatientId == Model.Id).ToList();
+                }
+
+                @foreach (var treatment in filteredTreatments)
+                {
+                    iCAREWorker worker = db.iCAREWorkers.Find(treatment.WorkerId);
+                    iCAREUser user = db.iCAREUsers.Find(worker.UserAccount);
+                    DrugsDictionary drug = db.DrugsDictionaries.Find(treatment.DrugId);
+                    string treatmentDrug = "";
+                    if (drug != null)
+                    {
+                        treatmentDrug = drug.Name;
+                    }
+
+                    <tr>
+                        <td>@treatment.Description</td>
+                        <td>@treatmentDrug</td>
+                        <td>@treatment.TreatmentDate?.ToString("yyyy-MM-dd")</td>
+                        <td>@user.Fname @user.Lname</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <p>No treatment records found for this patient.</p>
+    }
+
+    <a asp-action="Index" asp-controller="DisplayMyBoard" class="btn btn-secondary">Back to My Patients</a>
 }
 
-<a asp-action="Index" asp-controller="DisplayMyBoard">Back to My Patients</a>
+

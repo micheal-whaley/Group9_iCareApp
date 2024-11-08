@@ -1,0 +1,55 @@
+﻿@model Group9_iCareApp.Models.TreatmentRecord
+
+@{
+    ViewData["Title"] = "Create Treatment Record";
+    var workerId = ViewData["WorkerId"] as int?;
+    var drugs = ViewData["Drugs"] as SelectList;
+    string error = (string)TempData["ErrorMessage"];
+}
+
+@if (workerId != null)
+{
+
+    <h1>Create Treatment Record</h1>
+
+    <form asp-action="CreateTreatmentRecord" method="post">
+        <div class="form-group">
+            <label asp-for="Description">Description</label>
+            <input asp-for="Description" class="form-control" maxlength="50" placeholder="Enter a brief description" />
+            <span asp-validation-for="Description" class="text-danger"></span>
+        </div>
+
+        <input type="hidden" asp-for="WorkerId" value="@workerId" />
+        <input type="hidden" asp-for="PatientId"/>
+        <input type="hidden" asp-for="TreatmentId"/>
+
+        <div class="form-group">
+            <label asp-for="DrugId">Drug</label>
+            <select asp-for="DrugId" class="form-control" asp-items="drugs">
+                <option value="">None</option> <!-- Option for no drug -->
+            </select>
+            <span asp-validation-for="DrugId" class="text-danger"></span>
+        </div>
+
+        <div class="form-group">
+            <label asp-for="TreatmentDate">Treatment Date</label>
+            <input asp-for="TreatmentDate" class="form-control" type="datetime" />
+            <span asp-validation-for="TreatmentDate" class="text-danger"></span>
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </form>
+    @if (@error != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @error
+        </div>
+    }
+}
+else
+{
+    <p>Sorry! it seems like we couldn't find you in the database as a worker! Please contact help if this occurs again!'</p>
+}
+
+
