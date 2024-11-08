@@ -1,26 +1,29 @@
-﻿
-using Group9_iCareApp.Models;
+﻿using Group9_iCareApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Immutable;
 
 public class iCAREBoardController : Controller
 {
     private readonly iCAREDBContext _context;
     private readonly ILogger<iCAREBoardController> _logger;
 
-
+    // Constructor with dependency injection for DbContext and Logger
     public iCAREBoardController(iCAREDBContext context, ILogger<iCAREBoardController> logger)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
+    // GET: Display list of patients assigned to worker by location
     public async Task<IActionResult> Index(string? workerEmail)
     {
+        if (string.IsNullOrEmpty(workerEmail))
+            return NotFound("Worker email cannot be null");
+
         ViewBag.WorkerEmail = workerEmail;
 
+        // Query to fetch patients grouped by location, including treatment records and worker details
         var patientsQuery = _context.PatientRecords
             .Include(p => p.Location)
             .Include(p => p.TreatmentRecords)
@@ -29,21 +32,20 @@ public class iCAREBoardController : Controller
 
         var patients = await patientsQuery.ToListAsync();
 
-        if (!string.IsNullOrEmpty(workerEmail))
-        {
-            var worker = await _context.iCAREWorkers
-                .Include(w => w.AccountNavigation)
-                .FirstOrDefaultAsync(w => w.AccountNavigation.Email == workerEmail);
+        // Fetch the worker details for the specified email
+        var worker = await _context.iCAREWorkers
+            .Include(w => w.AccountNavigation)
+            .FirstOrDefaultAsync(w => w.AccountNavigation.Email == workerEmail);
 
-            ViewBag.CurrentWorker = worker;
-        }
+        ViewBag.CurrentWorker = worker ?? throw new InvalidOperationException("Worker not found");
 
         return View(patients);
     }
 
+    // GET: Render Create Patient form with blood group and location options
     public IActionResult CreatePatient()
     {
-        var locations = _context.Locations.ToList(); // Get the list of locations
+        var locations = _context.Locations.ToList();
         var bloodGroups = new List<SelectListItem>
         {
             new SelectListItem { Text = "A+", Value = "A+" },
@@ -55,12 +57,12 @@ public class iCAREBoardController : Controller
             new SelectListItem { Text = "O+", Value = "O+" },
             new SelectListItem { Text = "O-", Value = "O-" }
         };
-        ViewData["Locations"] = new SelectList(locations, "Id", "Name"); // Pass them as a SelectList
+        ViewData["Locations"] = new SelectList(locations, "Id", "Name");
         ViewData["BloodGroups"] = new SelectList(bloodGroups, "Value", "Text");
         return View();
     }
 
-
+    // POST: Create a new patient record and save to the database
     [HttpPost]
     public async Task<IActionResult> CreatePatient(int id, PatientRecord patient)
     {
@@ -85,11 +87,11 @@ public class iCAREBoardController : Controller
         return RedirectToAction(nameof(Index));
     }
 
-
+    // POST: Assign multiple patients to a specified worker
     [HttpPost]
     public async Task<IActionResult> AssignPatients(List<int> patientIds, string userid)
     {
-        if (patientIds == null || !patientIds.Any())
+        if (!patientIds.Any())
         {
             TempData["ErrorMessage"] = "No patients were selected to be assigned.";
             return RedirectToAction(nameof(Index));
@@ -97,18 +99,16 @@ public class iCAREBoardController : Controller
 
         try
         {
+            // Select worker from DB
             var worker = await _context.iCAREWorkers
                 .FirstOrDefaultAsync(w => w.UserAccount == userid);
 
-            var user = _context.iCAREUsers
-                .FirstOrDefault(w => w.Id == userid);
-            if (worker == null || user == null)
-            {
-                Console.WriteLine("Inside assign patient\n");
-                return NotFound("Worker not found");
-            }
+            var user = await _context.iCAREUsers
+                .FirstOrDefaultAsync(u => u.Id == userid);
 
-            Console.WriteLine("About to loop through all patient ids\n");
+            if (worker == null || user == null)
+                return NotFound("Worker not found");
+
             foreach (var patientId in patientIds)
             {
                 var patient = await _context.PatientRecords
@@ -123,15 +123,16 @@ public class iCAREBoardController : Controller
                 }
 
                 if (worker.Profession == "Doctor" &&
-
-                    (!patient.TreatmentRecords.Any(t => t.Worker?.Profession == "Nurse") || patient.TreatmentRecords.Count(t => t.Worker?.Profession == "Doctor") >= 1))
+                    (patient.TreatmentRecords.All(t => t.Worker?.Profession != "Nurse") ||
+                     patient.TreatmentRecords.Count(t => t.Worker?.Profession == "Doctor") >= 1))
                 {
-                    TempData["ErrorMessage"] = "A doctor cannot be assigned. There can only be one doctor per patient, and a nurse needs to be assigned first.";
+                    TempData["ErrorMessage"] = "A doctor cannot be assigned without a nurse assigned first, or only one doctor is allowed.";
                     _logger.LogWarning("Skipping patient {PatientId}: requires nurse before doctor", patientId);
                     continue;
                 }
 
-                if(patient.TreatmentRecords.FirstOrDefault(w => w.WorkerId == worker.Id) != null){
+                if (patient.TreatmentRecords.Any(t => t.WorkerId == worker.Id))
+                {
                     TempData["ErrorMessage"] = "Worker is already assigned to patient.";
                     _logger.LogWarning("Skipping patient {PatientId}: worker already assigned", patientId);
                     continue;
@@ -140,24 +141,25 @@ public class iCAREBoardController : Controller
                 if (worker.Profession == "Nurse" &&
                     patient.TreatmentRecords.Count(t => t.Worker?.Profession == "Nurse") >= 3)
                 {
-                    TempData["ErrorMessage"] = "There are already 3 nurses assigned, so no more nurses can be assigned.";
+                    TempData["ErrorMessage"] = "Maximum of 3 nurses per patient reached.";
                     _logger.LogWarning("Skipping patient {PatientId}: max nurses assigned", patientId);
                     continue;
                 }
-                Console.WriteLine("Creating treatment record\n");
+
                 var treatmentRecord = new TreatmentRecord
                 {
                     TreatmentId = Guid.NewGuid().ToString(),
                     PatientId = patientId,
                     WorkerId = worker.Id,
                     TreatmentDate = DateTime.UtcNow,
-                    Description = $"Initial assignment of {worker.Profession} {user.Fname} {user.Lname}  to patient"
+                    Description = $"Initial assignment of {worker.Profession} {user.Fname} {user.Lname} to patient"
                 };
 
                 _context.TreatmentRecords.Add(treatmentRecord);
             }
-            TempData["SuccessMessage"] = "Patient(s) have been successfully assigned.";
+
             await _context.SaveChangesAsync();
+            TempData["SuccessMessage"] = "Patient(s) have been successfully assigned.";
             return RedirectToAction(nameof(Index), new { userid });
         }
         catch (Exception ex)
@@ -167,7 +169,7 @@ public class iCAREBoardController : Controller
         }
     }
 
-
+    // POST: Unassign a patient from a specified worker
     [HttpPost]
     public async Task<IActionResult> UnassignPatient(int patientId, string workerEmail)
     {
@@ -178,10 +180,7 @@ public class iCAREBoardController : Controller
                 .FirstOrDefaultAsync(w => w.AccountNavigation.Email == workerEmail);
 
             if (worker == null)
-            {
-                Console.WriteLine("Inside unassign patient\n");
                 return NotFound("Worker not found");
-            }
 
             var treatmentRecord = await _context.TreatmentRecords
                 .FirstOrDefaultAsync(t => t.PatientId == patientId && t.WorkerId == worker.Id);
