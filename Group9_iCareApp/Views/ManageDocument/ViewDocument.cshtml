@@ -1,18 +1,16 @@
 ﻿@model Group9_iCareApp.Models.Document
 @inject iCAREDBContext db
 @{
-    Document document = (Group9_iCareApp.Models.Document)ViewData["Document"];
-    PatientRecord patient = db.PatientRecords.Find(document.PatientRecordId);
-    iCAREWorker creatingWorker = db.iCAREWorkers.Find(document.CreatingWorkerId);
-    iCAREUser creatingUser = db.iCAREUsers.Find(creatingWorker.UserAccount);
-    iCAREWorker editingWorker = db.iCAREWorkers.Find(document.ModifyingWorkerId);
-    iCAREUser editingUser = db.iCAREUsers.Find(editingWorker.UserAccount);
+    //Document document = ViewData["Document"] as Document;
+    PatientRecord patient = db.PatientRecords.Find(Model.PatientRecordId);
+    string? creatorName = (string?)ViewData["CreatorName"];
+    string? lastModifierName = (string?)ViewData["ModifierName"];
 }
 
-@if (document != null){
-    <h1>@document.DocumentName</h1>
-    <a asp-controller="ManageDocument" asp-action="EditDocument" asp-route-fileName="@document.DocumentName" class="btn btn-primary">Edit Document</a>
-    <object data='@Url.Action("ViewPdf", "ManageDocument", new {fileName = document.DocumentName})' width="100%" height="600px" name=@document.DocumentName></object>
+@if (Model != null){
+    <h1>@Model.DocumentName</h1>
+    <a asp-controller="ManageDocument" asp-action="EditDocument" asp-route-fileName="@Model.DocumentName" class="btn btn-primary">Edit Document</a>
+    <object data='@Url.Action("ViewPdf", "ManageDocument", new {fileName = Model.DocumentName})' width="100%" height="600px" name=@Model.DocumentName></object>
     
     <div>
         <h1>Document Details</h1>
@@ -22,7 +20,7 @@
             Description
         </dt>
         <dd class="col-sm-9">
-            @document.Description
+            @Model.Description
         </dd>
         <dt class="col-sm-3">
             Patient 
@@ -35,29 +33,35 @@
             Creation Date
         </dt>
         <dd class="col-sm-9">
-            @document.CreationDate
+            @Model.CreationDate
         </dd>
-        <dt class="col-sm-3">
-            Created by
-        </dt>
-        <dd class="col-sm-9">
-            @creatingUser.Fname @creatingUser.Lname
-        </dd>
-
+            @if(creatorName != null)
+            {
+                <dt class="col-sm-3">
+                    Created by
+                </dt>
+                <dd class="col-sm-9">
+                    @creatorName
+                </dd>
+            }    
         <dt class="col-sm-3">
             Last Modified Date
         </dt>
         <dd class="col-sm-9">
-            @document.LastModifiedDate
+            @Model.LastModifiedDate
         </dd>
-        <dt class="col-sm-3">
-            Last Modified by
-        </dt>
-        <dd class="col-sm-9">
-            @editingUser.Fname @editingUser.Lname
-        </dd>
+            @if(lastModifierName != null)
+            {
+                <dt class="col-sm-3">
+                    Last Modified by
+                </dt>
+                <dd class="col-sm-9">
+                    @lastModifierName
+                </dd>
+            }    
     </dl>
 </div>
+    <a asp-controller="DisplayMyBoard" asp-action="Details" asp-route-patientId="@Model.PatientRecordId" class="btn btn-primary">View Associated Patient</a>
 }
 else
 {

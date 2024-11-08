@@ -99,9 +99,32 @@ namespace Group9_iCareApp.Controllers
 
         public IActionResult ViewDocument(string fileName)
         {
+
             var document = db.Documents.Find(fileName);
-            ViewData["Document"] = document;
-            return View();
+            if (document != null)
+            {
+                var creatingWorker = db.iCAREWorkers.Find(document.CreatingWorkerId);
+                if(creatingWorker != null)
+                {
+                    var creatingUser = db.iCAREUsers.Find(creatingWorker.UserAccount);
+                    if(creatingUser != null)
+                    {
+                        ViewData["CreatorName"] = creatingUser.Fname + " " + creatingUser.Lname;
+                    }
+                }
+
+                var modifyingWorker = db.iCAREWorkers.Find(document.ModifyingWorkerId);
+                if (modifyingWorker != null)
+                {
+                    var modifyingUser = db.iCAREUsers.Find(modifyingWorker.UserAccount);
+                    if (modifyingUser != null)
+                    {
+                        ViewData["ModifierName"] = modifyingUser.Fname + " " + modifyingUser.Lname;
+                    }
+                }
+            }
+
+            return View(document);
         }
 
         public IActionResult ViewPdf(string fileName)
