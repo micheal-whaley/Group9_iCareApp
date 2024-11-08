@@ -7,10 +7,8 @@ public class iCAREBoardController : Controller
 {
     private readonly iCAREDBContext _context;
     private readonly ILogger<iCAREBoardController> _logger;
-<<<<<<< Updated upstream
 
-    // Constructor with dependency injection for DbContext and Logger
-=======
+
     public static List<SelectListItem> bloodGroups = new List<SelectListItem>
         {
             new SelectListItem { Text = "A+", Value = "A+" },
@@ -22,8 +20,7 @@ public class iCAREBoardController : Controller
             new SelectListItem { Text = "O+", Value = "O+" },
             new SelectListItem { Text = "O-", Value = "O-" }
         };
-
->>>>>>> Stashed changes
+    // Constructor with dependency injection for DbContext and Logger
     public iCAREBoardController(iCAREDBContext context, ILogger<iCAREBoardController> logger)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
@@ -60,8 +57,7 @@ public class iCAREBoardController : Controller
     // GET: Render Create Patient form with blood group and location options
     public IActionResult CreatePatient()
     {
-<<<<<<< Updated upstream
-        var locations = _context.Locations.ToList();
+
         var bloodGroups = new List<SelectListItem>
         {
             new SelectListItem { Text = "A+", Value = "A+" },
@@ -73,11 +69,9 @@ public class iCAREBoardController : Controller
             new SelectListItem { Text = "O+", Value = "O+" },
             new SelectListItem { Text = "O-", Value = "O-" }
         };
-        ViewData["Locations"] = new SelectList(locations, "Id", "Name");
-=======
+
         var locations = _context.Locations.ToList(); // Get the list of locations
         ViewData["Locations"] = new SelectList(locations, "Id", "Name"); // Pass them as a SelectList
->>>>>>> Stashed changes
         ViewData["BloodGroups"] = new SelectList(bloodGroups, "Value", "Text");
         return View();
     }
