@@ -22,8 +22,8 @@ namespace Group9_iCareApp.Controllers
         public IActionResult Index(int id)
         {
             DbSet<PatientRecord> allRecords = _usercontext.PatientRecords;
-            //PatientRecord patient = allRecords.Find(id);  // Find the requested patient
-            //ViewData["Message"] = patient;  // Pass the patient to the view
+            PatientRecord patient = allRecords.Find(id);  // Find the requested patient
+            ViewData["Message"] = patient;  // Pass the patient to the view
             return View();
         }
 
