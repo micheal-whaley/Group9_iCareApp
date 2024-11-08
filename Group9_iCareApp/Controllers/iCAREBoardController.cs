@@ -28,13 +28,8 @@ public class iCAREBoardController : Controller
     }
 
     // GET: Display list of patients assigned to worker by location
-    public async Task<IActionResult> Index(string? workerEmail)
+    public async Task<IActionResult> Index()
     {
-        if (string.IsNullOrEmpty(workerEmail))
-            return NotFound("Worker email cannot be null");
-
-        ViewBag.WorkerEmail = workerEmail;
-
         // Query to fetch patients grouped by location, including treatment records and worker details
         var patientsQuery = _context.PatientRecords
             .Include(p => p.Location)
@@ -43,13 +38,6 @@ public class iCAREBoardController : Controller
             .GroupBy(p => p.Location);
 
         var patients = await patientsQuery.ToListAsync();
-
-        // Fetch the worker details for the specified email
-        var worker = await _context.iCAREWorkers
-            .Include(w => w.AccountNavigation)
-            .FirstOrDefaultAsync(w => w.AccountNavigation.Email == workerEmail);
-
-        ViewBag.CurrentWorker = worker ?? throw new InvalidOperationException("Worker not found");
 
         return View(patients);
     }
