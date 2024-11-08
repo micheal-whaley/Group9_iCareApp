@@ -1,12 +1,12 @@
-﻿@model Group9_iCareApp.Models.PatientRecord
+﻿@model Group9_iCareApp.Models.Document
 @{
     string error = (string)TempData["ErrorMessage"];
     string success = (string)TempData["SuccessMessage"];
-    var patients = (SelectList)ViewData["patients"];
+    var treatments = (SelectList)ViewData["treatments"];
 }
 
 
-@if (patients == null || !patients.Any())
+@if (treatments == null || !treatments.Any())
 {
     <p>Currently, you have no patients assigned to you, so you can't upload any documents. Feel free to assign yourself some patients!</p>
 }
@@ -23,8 +23,13 @@ else
         <div class="mb-3 mt-3">
             <form asp-controller="ManageDocument" asp-action="UploadFile" method="post" enctype="multipart/form-data">
                 <div class="form-group">
-                    <label class="mt-4" for="Id">Patient</label>
-                    <select asp-for="Id" asp-items=patients class="form-select"></select>
+                    <label for="Description">Description</label>
+                    <input type="text" name="Description" class="form-control" id="Description" placeholder="Enter a brief description" />
+                </div>
+                <br />
+                <div class="form-group">
+                    <label class="mt-4" for="treatmentID">Treatment</label>
+                    <select asp-for="treatmentID" asp-items=treatments class="form-select"></select>
                 </div>
 
                 <div class="mb-3">
@@ -32,6 +37,7 @@ else
                 </div>
                 <div class="mb-3">
                     <button type="submit" class="btn btn-primary">Upload</button>
+                    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
                 </div>
             </form>
         </div>

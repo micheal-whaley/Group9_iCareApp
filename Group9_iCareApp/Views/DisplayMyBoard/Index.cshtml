@@ -6,8 +6,8 @@
 @{
     ViewData["Title"] = "My Patient Board";
     var filteredPatients = (List<Group9_iCareApp.Models.PatientRecord>)ViewData["patients"];
-    string error = (string)TempData["ErrorMessage"];
-    string success = (string)TempData["SuccessMessage"];
+    string? error = (string?)TempData["ErrorMessage"];
+    string? success = (string?)TempData["SuccessMessage"];
 }
 
 <h1>@ViewData["Title"]</h1>

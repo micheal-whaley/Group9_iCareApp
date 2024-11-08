@@ -3,7 +3,7 @@
 
 @{
     ViewData["Title"] = "Patient Details";
-    string error = (string)TempData["ErrorMessage"];
+    string? error = (string?)TempData["ErrorMessage"];
 }
 
 @if(error != null)

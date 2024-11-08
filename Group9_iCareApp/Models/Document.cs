@@ -23,6 +23,8 @@ public partial class Document
 
     public string? Description { get; set; }
 
+    public string? treatmentID { get; set; }
+
     //public virtual iCAREWorker? CreatingWorker { get; set; }
 
     //public virtual iCAREWorker? ModifiyingWorker { get; set; }

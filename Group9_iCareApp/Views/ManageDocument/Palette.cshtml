@@ -5,101 +5,107 @@
 
 <a asp-controller="ManageDocument" asp-action="CreateDocument" class="btn btn-primary">Create New Document</a>
 <a asp-controller="ManageDocument" asp-action="UploadDocument" class="btn btn-secondary">Upload Documents</a>
+<br />
 
-@if (!Model.Any()){
-    <p>Currently, no documents for your patients exist. Feel free to upload or create a document for them!</p>
-}
-else if (patients == null || !patients.Any())
+@if (patients == null || !patients.Any())
 {
-    <p>Currently, you have no patients assigned to you. Feel free to assign yourself some patients!</p>
+        <p>Currently, you have no patients assigned to you. Feel free to assign yourself some patients!</p>
 
-}else{
-    <form asp-action="Palette" asp-route-sortOrder=@ViewData["currentSortOrder"] method="get">
-        <div class="form-group">
-            <label for="patientId">Filter by Patient</label>
-            <select name="patientId" class="form-control" id="patientId">
-                <option value="">All Patients</option> <!-- Default option to show all patients -->
+}
+else if (!Model.Any())
+{
+        <p>Currently, no documents for your patients exist. Feel free to upload or create a document for them!</p>
+}
+else
+{
+        <form asp-action="Palette" asp-route-sortOrder=@ViewData["currentSortOrder"] method="get">
+            <div class="form-group">
+                <label for="patientId">Filter by Patient</label>
+                <select name="patientId" class="form-control" id="patientId">
+                    <option value="">All Patients</option> <!-- Default option to show all patients -->
                 @foreach (var patient in patients)
                 {
                     @if (patient.Value.ToString().Equals(ViewData["currentPatientId"]?.ToString()))
                     {
-                        <option value="@patient.Value" selected>@patient.Text</option>
-                    }else{
-                        <option value="@patient.Value">@patient.Text</option>
+                                    <option value="@patient.Value" selected>@patient.Text</option>
                     }
-                    
-                }
-            </select>
-        </div>
+                    else
+                    {
+                                    <option value="@patient.Value">@patient.Text</option>
+                    }
 
-        <div class="mb-3">
-            <button type="submit" class="btn btn-primary">Filter</button>
-        </div>
-    </form>
-    <table class="table">
-        <tr>
-            <th>
-                <a asp-action="Palette" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-patientId="@ViewData["currentPatientId"]" >
+                }
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <button type="submit" class="btn btn-primary">Filter</button>
+            </div>
+        </form>
+        <table class="table">
+            <tr>
+                <th>
+                    <a asp-action="Palette" asp-route-sortOrder="@ViewData["NameSortParm"]" asp-route-patientId="@ViewData["currentPatientId"]" >
                     @Html.DisplayNameFor(model => model.DocumentName)
                     @if ((string)ViewData["CurrentSortColumn"] == "name")
                     {
-                        <span>@((string)ViewData["CurrentSortDirection"] == "asc" ? "▲" : "▼")</span>
+                                <span>@((string)ViewData["CurrentSortDirection"] == "asc" ? "▲" : "▼")</span>
                     }
 
-                </a>
-            </th>
-            <th>
-                <a asp-action="Palette" asp-route-sortOrder="@ViewData["LastModifiedSortParm"]" asp-route-patientId="@ViewData["currentPatientId"]">
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Palette" asp-route-sortOrder="@ViewData["LastModifiedSortParm"]" asp-route-patientId="@ViewData["currentPatientId"]">
                     @Html.DisplayNameFor(model => model.LastModifiedDate)
                     @if ((string)ViewData["CurrentSortColumn"] == "modified")
                     {
-                        <span>@((string)ViewData["CurrentSortDirection"] == "asc" ? "▲" : "▼")</span>
+                                <span>@((string)ViewData["CurrentSortDirection"] == "asc" ? "▲" : "▼")</span>
                     }
 
-                </a>
-            </th>
-            <th>
-                <a asp-action="Palette" asp-route-sortOrder="@ViewData["CreationSortParm"]" asp-route-patientId="@ViewData["currentPatientId"]">
+                    </a>
+                </th>
+                <th>
+                    <a asp-action="Palette" asp-route-sortOrder="@ViewData["CreationSortParm"]" asp-route-patientId="@ViewData["currentPatientId"]">
                     @Html.DisplayNameFor(model => model.CreationDate)
                     @if ((string)ViewData["CurrentSortColumn"] == "creation")
                     {
-                        <span>@((string)ViewData["CurrentSortDirection"] == "asc" ? "▲" : "▼")</span>
+                                <span>@((string)ViewData["CurrentSortDirection"] == "asc" ? "▲" : "▼")</span>
                     }
 
-                </a>
-            </th>
-            <th>
+                    </a>
+                </th>
+                <th>
                 @Html.DisplayNameFor(model => model.Description)
-            </th>
-        </tr>
+                </th>
+            </tr>
 
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
+                    <tr>
+                        <td>
                     @Html.DisplayFor(modelItem => item.DocumentName)
-                </td>
-                <td>
+                        </td>
+                        <td>
                     @Html.DisplayFor(modelItem => item.LastModifiedDate)
-                </td>
-                <td>
+                        </td>
+                        <td>
                     @Html.DisplayFor(modelItem => item.CreationDate)
-                </td>
-                <td>
+                        </td>
+                        <td>
                     @Html.DisplayFor(modelItem => item.Description)
-                </td>
-                
+                        </td>
 
-                <td>
+
+                        <td>
                     @Html.ActionLink("View", "ViewDocument", "ManageDocument", new { fileName = item.DocumentName })
-                </td>
-                <td>
+                        </td>
+                        <td>
                     @Html.ActionLink("Edit", "EditDocument", "ManageDocument", new { fileName = item.DocumentName })
-                </td>
-                <td>
+                        </td>
+                        <td>
                     @Html.ActionLink("Delete", "DeleteDocument", "ManageDocument", new { fileName = item.DocumentName })
-                </td>
-            </tr>
+                        </td>
+                    </tr>
         }
-    </table>
+        </table>
 }

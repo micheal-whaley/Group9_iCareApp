@@ -4,11 +4,11 @@
     Document document = (Document)ViewData["Document"];
     string htmlString = (string)ViewData["htmlString"];
     bool editOldDoc = (bool)ViewData["editOldDoc"];
-    var patients = (SelectList)ViewData["patients"];
+    var treatments = (SelectList)ViewData["treatments"];
     var drugs = (List<DrugsDictionary>)ViewData["drugs"];
 }
 
-@if (patients == null || !patients.Any())
+@if (treatments == null || !treatments.Any())
 {
     <p>Currently, you have no patients assigned to you, so you can't create any documents. Feel free to assign yourself some patients!</p>
 }
@@ -35,15 +35,24 @@ else
     </head>
     <body>
         <form asp-controller="ManageDocument" asp-action="@(editOldDoc ? "SaveOldDocument" : "SaveNewDocument")" method="post">
+            
             <div class="main-container">
+                <div class="form-group">
+                    <label asp-for="Description">Description </label>
+                    <input asp-for="Description" class="form-control" maxlength="20" placeholder="Enter a brief description" value="@document.Description" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+                <br />
                 <!-- Display document name input if in create mode -->
                 @if (!editOldDoc)
                 {
                     <div class="form-group">
-                        <label for="docName">Document Name</label>
-                        <input type="text" name="docName" class="form-control" id="docName" placeholder="Enter document name here" />
-                        <label class="mt-4" for="PatientRecordId">Patient</label>
-                        <select asp-for="PatientRecordId" asp-items=patients class="form-select"></select>
+                        <br />
+                        <label asp-for="DocumentName">Document Name</label>
+                        <input asp-for="DocumentName" class="form-control" maxlength="20" placeholder="Enter document name here" />
+                        <span asp-validation-for="DocumentName" class="text-danger"></span>
+                        <label class="mt-4" for="treatmentId">Treatments</label>
+                        <select asp-for="treatmentID" asp-items=treatments class="form-select"></select>
                     </div>
                 }
                 else
@@ -52,6 +61,7 @@ else
                 }
 
                 <!-- Editor with HTML content or empty for new documents -->
+                <br />
                 <div class="editor-container editor-container_classic-editor" id="editor-container">
                     <div class="editor-container__editor">
                         <textarea name="content" id="editor">

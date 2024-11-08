@@ -1,7 +1,6 @@
 ﻿@model Group9_iCareApp.Models.Document
 @inject iCAREDBContext db
 @{
-    //Document document = ViewData["Document"] as Document;
     PatientRecord patient = db.PatientRecords.Find(Model.PatientRecordId);
     string? creatorName = (string?)ViewData["CreatorName"];
     string? lastModifierName = (string?)ViewData["ModifierName"];
