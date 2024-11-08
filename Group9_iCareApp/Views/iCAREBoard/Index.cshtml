@@ -6,6 +6,8 @@
     string userID = UserManager.GetUserId(User) ?? string.Empty;
     iCAREWorker worker = db.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userID);
     iCAREUser user = db.iCAREUsers.FirstOrDefault(w => w.Id == userID);
+    string error = (string)TempData["ErrorMessage"];
+    string success = (string)TempData["SuccessMessage"];
 }
 
 <div class="container mt-4">
@@ -88,6 +90,20 @@
         <input type="hidden" name="userid" value="@user.Id" />
         <button type="submit" class="btn btn-primary">Assign Selected Patients</button>
     </form>
+        <br />
+        @if (@error != null)
+        {
+            <div class="alert alert-danger" role="alert">
+                @error
+            </div>
+        }
+
+        @if (@success != null)
+        {
+            <div class="alert alert-success" role="alert">
+                @success
+            </div>
+        }
 
     }
 </div>

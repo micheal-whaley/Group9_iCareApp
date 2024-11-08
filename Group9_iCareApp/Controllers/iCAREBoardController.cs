@@ -2,10 +2,8 @@
 using Group9_iCareApp.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Immutable;
-using System.Linq;
 
 public class iCAREBoardController : Controller
 {
@@ -93,7 +91,8 @@ public class iCAREBoardController : Controller
     {
         if (patientIds == null || !patientIds.Any())
         {
-            return BadRequest("No patients selected.");
+            TempData["ErrorMessage"] = "No patients were selected to be assigned.";
+            return RedirectToAction(nameof(Index));
         }
 
         try
@@ -127,11 +126,13 @@ public class iCAREBoardController : Controller
 
                     (!patient.TreatmentRecords.Any(t => t.Worker?.Profession == "Nurse") || patient.TreatmentRecords.Count(t => t.Worker?.Profession == "Doctor") >= 1))
                 {
+                    TempData["ErrorMessage"] = "A doctor cannot be assigned. There can only be one doctor per patient, and a nurse needs to be assigned first.";
                     _logger.LogWarning("Skipping patient {PatientId}: requires nurse before doctor", patientId);
                     continue;
                 }
 
                 if(patient.TreatmentRecords.FirstOrDefault(w => w.WorkerId == worker.Id) != null){
+                    TempData["ErrorMessage"] = "Worker is already assigned to patient.";
                     _logger.LogWarning("Skipping patient {PatientId}: worker already assigned", patientId);
                     continue;
                 }
@@ -139,6 +140,7 @@ public class iCAREBoardController : Controller
                 if (worker.Profession == "Nurse" &&
                     patient.TreatmentRecords.Count(t => t.Worker?.Profession == "Nurse") >= 3)
                 {
+                    TempData["ErrorMessage"] = "There are already 3 nurses assigned, so no more nurses can be assigned.";
                     _logger.LogWarning("Skipping patient {PatientId}: max nurses assigned", patientId);
                     continue;
                 }
@@ -154,7 +156,7 @@ public class iCAREBoardController : Controller
 
                 _context.TreatmentRecords.Add(treatmentRecord);
             }
-
+            TempData["SuccessMessage"] = "Patient(s) have been successfully assigned.";
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index), new { userid });
         }
