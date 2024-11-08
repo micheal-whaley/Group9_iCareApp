@@ -1,4 +1,45 @@
-﻿<div class="text-center">
-    <h1 class="display-4">Admin Panel</h1>
-    <p>Welcome to the Admin Panel! Here, you can Create, Update, and Delete iCare Workers</p>
+﻿@using Microsoft.EntityFrameworkCore
+@inject iCAREDBContext _context
+@{
+    List<iCAREWorker> workers = _context.iCAREWorkers.ToList<iCAREWorker>();
+}
+
+<div class="text-center">
+    <h1 class="display-4">Worker Management</h1>
+    <p>Here you can update and delete worker accounts.</p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Profession</th>
+                <th>Location</th>
+                <th></th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach (iCAREWorker worker in workers)
+            {
+                iCAREUser user = _context.iCAREUsers.Find(worker.UserAccount);
+
+                <tr>
+                    <td>@user.Fname</td>
+                    <td>@user.Lname</td>
+                    <td>@worker.Profession</td>
+                    <td>@_context.Locations.Find(user.locationID).Name</td>
+                    <td>
+                        <a id="edit" href="@Url.Action("Update", "Admin", new {workerId = worker.Id})" title="Edit Worker">Edit Worker</a>
+                    </td>
+                    <td>
+                        <form asp-controller="Admin" asp-action="Delete" method="post">
+                            <input type="hidden" name="workerId" value="@worker.Id" />
+                            <button id="delete" type="submit" class="nav-link btn btn-link text-dark border-0 delete">Delete</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
 </div>

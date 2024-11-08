@@ -1,0 +1,59 @@
+﻿@using Group9_iCareApp.Models
+
+@{
+    int id = ViewBag.workerId;
+    iCAREDBContext context = (iCAREDBContext)ViewData["context"];
+    var worker = context?.iCAREWorkers.Find(id);
+    var account = context?.iCAREUsers.Find(worker?.UserAccount ?? string.Empty);
+}
+
+@if (worker != null && account != null)
+{
+    <div class="text-center">
+        <h1 class="display-4">Edit the account for @account.Fname @account.Lname</h1>
+    </div>
+    
+    <form asp-action="Update" asp-controller="Admin" method="post">
+        <input type="hidden" name="workerId" value="@worker.Id" />
+        <label class="mt-4" for="fname">First Name</label>
+        <input class="form-control" type="text" name="fname" value="@account.Fname" />
+        <label class="mt-4" for="lname">Last Name</label>
+        <input class="form-control" type="text" name="lname" value="@account.Lname" />
+        <label class="mt-4" for="profession">Profession</label>
+        <select class="form-select" name="profession">
+            @if (@worker.Profession == "Doctor")
+            {
+                <option id="Doctor" value="Doctor" selected>Doctor</option>
+                <option id="Nurse" value="Nurse">Nurse</option>
+            }
+            else
+            {
+                <option id="Doctor" value="Doctor">Doctor</option>
+                <option id="Nurse" value="Nurse" selected>Nurse</option>
+            }
+
+        </select>
+        <label class="mt-4" for="location">Location</label>
+        <select class="form-select" name="location">
+            @foreach (Location location in context.Locations)
+            {
+                if (location.Id == account.locationID)
+                {
+                    <option value="@location.Id" selected>@location.Name</option>
+                }
+                else
+                {
+                    <option value="@location.Id">@location.Name</option>
+                }
+            }
+        </select>
+        <button type="submit" class="btn btn-primary mt-4">Save</button>
+    </form>
+}
+else
+{
+    <div class="text-center">
+        <h1>Unable to find the worker requested.</h1>
+        <p>It looks like iCare encountered an error while searching for the specified user.</p>
+    </div>
+}
