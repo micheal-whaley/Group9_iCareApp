@@ -4,7 +4,7 @@
 @inject iCAREDBContext db
 @{
     string userID = UserManager.GetUserId(User) ?? string.Empty;
-    iCAREWorker worker = db.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userID);
+    iCAREWorker worker = db.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userID); // gets worker and user through userID
     iCAREUser user = db.iCAREUsers.FirstOrDefault(w => w.Id == userID);
     string error = (string)TempData["ErrorMessage"];
     string success = (string)TempData["SuccessMessage"];
@@ -25,9 +25,9 @@
     <form method="post" action="@Url.Action("AssignPatients")">
         <input type="hidden" name="workerEmail" value="@ViewBag.WorkerEmail" />
 
-        @foreach (var locationGroup in Model)
+        @foreach (var locationGroup in Model) // loop through locations
         {
-            @if (locationGroup.Key.Id == user.locationID)
+            @if (locationGroup.Key.Id == user.locationID) // this makes sure it only displays the patients at the location of the worker
             {
                 <div class="card mb-4">
                     <div class="card-header">
@@ -67,7 +67,7 @@
                                                     @{
                                                         IEnumerable<TreatmentRecord> workers =  patient.TreatmentRecords.DistinctBy(w=> w.WorkerId);
                                                     }
-                                                @foreach (var treatment in workers)
+                                                @foreach (var treatment in workers) // loops through assigned workers
                                                 {
                                                     iCAREUser workerUser = db.iCAREUsers.FirstOrDefault(w => w.Id == treatment.Worker.UserAccount);
                                                     

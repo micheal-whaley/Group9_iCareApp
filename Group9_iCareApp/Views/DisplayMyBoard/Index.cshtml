@@ -12,7 +12,7 @@
 
 <h1>@ViewData["Title"]</h1>
 
-@if (filteredPatients != null)
+@if (filteredPatients != null) // only displays if patients of worker exists
 {
     <table class="table">
         <thead>
@@ -39,7 +39,7 @@
             </tr>
         </thead>
         <tbody>
-            @foreach (var patient in filteredPatients)
+            @foreach (var patient in filteredPatients) // loops through patients assigned to the current worker
         
             {
      

@@ -20,7 +20,7 @@
         </thead>
         <tbody>
 
-            @foreach (iCAREWorker worker in workers)
+            @foreach (iCAREWorker worker in workers) // displays all current workers
             {
                 iCAREUser user = _context.iCAREUsers.Find(worker.UserAccount);
 

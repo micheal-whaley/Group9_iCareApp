@@ -14,7 +14,7 @@ namespace Group9_iCareApp.Controllers
 
         public DisplayMyBoardController(iCAREDBContext context, UserManager<iCAREUser> userManager)
         {
-            _context = context;
+            _context = context; // grabs the database context and the usermanager
             _userManager = userManager;
         }
 
@@ -29,10 +29,10 @@ namespace Group9_iCareApp.Controllers
             ViewData["CurrentSortDirection"] = sortOrder?.Split('_')[1] ?? "desc"; // Default to ascending if null
 
             string userID = _userManager.GetUserId(User) ?? string.Empty;
-            if (!userID.IsNullOrEmpty())
+            if (!userID.IsNullOrEmpty()) // user exists
             {
-                iCAREWorker worker = _context.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userID);
-                var patients = _context.PatientRecords.Where(c => c.TreatmentRecords.Any(i => i.WorkerId == worker.Id)).AsQueryable();
+                iCAREWorker worker = _context.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userID); // grabs the worker of the current user
+                var patients = _context.PatientRecords.Where(c => c.TreatmentRecords.Any(i => i.WorkerId == worker.Id)).AsQueryable(); //grabs all patients assigned to worker
 
                 patients = sortOrder switch
                 {
@@ -71,11 +71,11 @@ namespace Group9_iCareApp.Controllers
         [HttpPost]
         public ActionResult Edit(PatientRecord patient)
         {
-            DbSet<PatientRecord> allRecords = _context.PatientRecords;
-            allRecords.Update(patient);
-            _context.SaveChanges();
+            DbSet<PatientRecord> allRecords = _context.PatientRecords; // gets all patientrecords
+            allRecords.Update(patient); // updates patient record values
+            _context.SaveChanges(); // saves changes to database
             TempData["SuccessMessage"] = "Successfully modified " + patient.Fname + " " + patient.Lname + "'s information.";
-            return RedirectToAction("Index");
+            return RedirectToAction("Index"); // redirects back to view of all patients
         }
 
         // Initializes given data for a new treatment record, but then sends to the view to get the rest to treat a patient.
@@ -85,8 +85,8 @@ namespace Group9_iCareApp.Controllers
             string userID = _userManager.GetUserId(User) ?? string.Empty;
             if (!userID.IsNullOrEmpty())
             {
-                iCAREWorker worker = _context.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userID);
-                if (worker != null)
+                iCAREWorker worker = _context.iCAREWorkers.FirstOrDefault(w => w.UserAccount == userID); // gets current worker from userid
+                if (worker != null) // if worker exists
                 {
                     ViewData["WorkerId"] = worker.Id; //if this fails, the view will know about it
                 }
@@ -109,7 +109,7 @@ namespace Group9_iCareApp.Controllers
             if (ModelState.IsValid)
             {
                 _context.TreatmentRecords.Add(treatmentRecord);
-                _context.SaveChanges();
+                _context.SaveChanges(); // adds treatment record to patientrecord and saves changes to the database
                 return RedirectToAction("Details", new { patientId = treatmentRecord.PatientId });
             }
             ViewData["ErrorMessage"] = "Sorry, treating a patient failed! If this occurs again, contact help!"; //shouldn't ever occur.

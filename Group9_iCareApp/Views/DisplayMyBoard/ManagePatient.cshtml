@@ -4,7 +4,7 @@
     List<SelectListItem> bloodGroups = (List<SelectListItem>)ViewData["bloodtypes"];
 }
 
-@if (Model != null)
+@if (Model != null) // if patientrecord exists
 {
 
     <h2>Update Record for @Model.Fname</h2>

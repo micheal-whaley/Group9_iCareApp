@@ -14,18 +14,18 @@ namespace Group9_iCareApp.Controllers
             this.context = context;
         }
 
-        public IActionResult Index()
+        public IActionResult Index() // displays view of all workers where you can edit and delete them
         {
             return View();
         }
 
 
-        public IActionResult Create()
+        public IActionResult Create() // sends admin to the create worker page
         {
             return Redirect("~/Identity/Account/Register");
         }
 
-        public IActionResult Update(int workerId)
+        public IActionResult Update(int workerId) // sends the workerId over to the update page for the admin where they can edit values.
         {
             // Renders the actual page.
             ViewBag.workerId = workerId;
@@ -73,7 +73,7 @@ namespace Group9_iCareApp.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult Success()
+        public IActionResult Success() // returns if the worker was successfully updated
         {
             return View();
         }

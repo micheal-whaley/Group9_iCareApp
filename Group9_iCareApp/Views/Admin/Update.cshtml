@@ -7,7 +7,7 @@
     var account = context?.iCAREUsers.Find(worker?.UserAccount ?? string.Empty);
 }
 
-@if (worker != null && account != null)
+@if (worker != null && account != null) // only displays if a worker exists
 {
     <div class="text-center">
         <h1 class="display-4">Edit the account for @account.Fname @account.Lname</h1>

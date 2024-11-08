@@ -23,7 +23,7 @@ public class iCAREBoardController : Controller
     // Constructor with dependency injection for DbContext and Logger
     public iCAREBoardController(iCAREDBContext context, ILogger<iCAREBoardController> logger)
     {
-        _context = context ?? throw new ArgumentNullException(nameof(context));
+        _context = context ?? throw new ArgumentNullException(nameof(context)); // gravs the database context and logger
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
@@ -46,7 +46,7 @@ public class iCAREBoardController : Controller
     public IActionResult CreatePatient()
     {
 
-        var bloodGroups = new List<SelectListItem>
+        var bloodGroups = new List<SelectListItem> // coded blood group values
         {
             new SelectListItem { Text = "A+", Value = "A+" },
             new SelectListItem { Text = "A-", Value = "A-" },
@@ -60,7 +60,7 @@ public class iCAREBoardController : Controller
 
         var locations = _context.Locations.ToList(); // Get the list of locations
         ViewData["Locations"] = new SelectList(locations, "Id", "Name"); // Pass them as a SelectList
-        ViewData["BloodGroups"] = new SelectList(bloodGroups, "Value", "Text");
+        ViewData["BloodGroups"] = new SelectList(bloodGroups, "Value", "Text"); // sets up bloodgroup select list
         return View();
     }
 
@@ -105,15 +105,15 @@ public class iCAREBoardController : Controller
             var worker = await _context.iCAREWorkers
                 .FirstOrDefaultAsync(w => w.UserAccount == userid);
 
-            var user = await _context.iCAREUsers
+            var user = await _context.iCAREUsers // select the user account for selected user
                 .FirstOrDefaultAsync(u => u.Id == userid);
 
-            if (worker == null || user == null)
+            if (worker == null || user == null) // worker failed to be found
                 return NotFound("Worker not found");
 
             foreach (var patientId in patientIds)
             {
-                var patient = await _context.PatientRecords
+                var patient = await _context.PatientRecords // selects patient by treatment records related to worker
                     .Include(p => p.TreatmentRecords)
                         .ThenInclude(t => t.Worker)
                     .FirstOrDefaultAsync(p => p.Id == patientId);
@@ -124,7 +124,7 @@ public class iCAREBoardController : Controller
                     continue;
                 }
 
-                if (worker.Profession == "Doctor" &&
+                if (worker.Profession == "Doctor" && // doctor cannot be added if a doctor was already assigned or if a nurse was not assigned yet
                     (patient.TreatmentRecords.All(t => t.Worker?.Profession != "Nurse") ||
                      patient.TreatmentRecords.Count(t => t.Worker?.Profession == "Doctor") >= 1))
                 {
@@ -133,14 +133,14 @@ public class iCAREBoardController : Controller
                     continue;
                 }
 
-                if (patient.TreatmentRecords.Any(t => t.WorkerId == worker.Id))
+                if (patient.TreatmentRecords.Any(t => t.WorkerId == worker.Id)) // worker is already assigned to patient
                 {
                     TempData["ErrorMessage"] = "Worker is already assigned to patient.";
                     _logger.LogWarning("Skipping patient {PatientId}: worker already assigned", patientId);
                     continue;
                 }
 
-                if (worker.Profession == "Nurse" &&
+                if (worker.Profession == "Nurse" && // max number of nurses have already been assigned
                     patient.TreatmentRecords.Count(t => t.Worker?.Profession == "Nurse") >= 3)
                 {
                     TempData["ErrorMessage"] = "Maximum of 3 nurses per patient reached.";
@@ -148,7 +148,7 @@ public class iCAREBoardController : Controller
                     continue;
                 }
 
-                var treatmentRecord = new TreatmentRecord
+                var treatmentRecord = new TreatmentRecord // creates new treatment record
                 {
                     TreatmentId = Guid.NewGuid().ToString(),
                     PatientId = patientId,
@@ -157,14 +157,14 @@ public class iCAREBoardController : Controller
                     Description = $"Initial assignment of {worker.Profession} {user.Fname} {user.Lname} to patient"
                 };
 
-                _context.TreatmentRecords.Add(treatmentRecord);
+                _context.TreatmentRecords.Add(treatmentRecord); // adds treatment record to database
             }
 
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); // saves changes to the database
             TempData["SuccessMessage"] = "Patient(s) have been successfully assigned.";
-            return RedirectToAction(nameof(Index), new { userid });
+            return RedirectToAction(nameof(Index), new { userid }); // redirects back to updated view of all patients at location
         }
-        catch (Exception ex)
+        catch (Exception ex) // shows if there was an error at any point
         {
             _logger.LogError(ex, "Error assigning patients");
             return StatusCode(500, "An error occurred while assigning patients.");
