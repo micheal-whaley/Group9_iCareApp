@@ -23,6 +23,7 @@ namespace Group9_iCareApp.Controllers
         {
             DbSet<PatientRecord> allRecords = _usercontext.PatientRecords;
             PatientRecord patient = allRecords.Find(id);  // Find the requested patient
+            ViewData["bloodtypes"] = iCAREBoardController.bloodGroups;
             ViewData["Message"] = patient;  // Pass the patient to the view
             return View();
         }
