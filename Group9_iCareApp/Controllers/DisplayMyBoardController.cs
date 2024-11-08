@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
 namespace Group9_iCareApp.Controllers
@@ -57,10 +58,24 @@ namespace Group9_iCareApp.Controllers
             return View(patient);
         }
 
-        //
+        //Given the patient(based on Id), manage the patient's information to change if needed.
         public IActionResult ManagePatient(int patientId)
         {
-            return RedirectToAction("Index", "ManagePatient", new { patientID = patientId }); // redirect to christian's managepatientview.
+            DbSet<PatientRecord> allRecords = _context.PatientRecords;
+            PatientRecord patient = allRecords.Find(patientId);  // Find the requested patient
+            ViewData["bloodtypes"] = iCAREBoardController.bloodGroups;
+            return View(patient);
+        }
+
+        //Given the patient, update it within the database and go back to myBoard.
+        [HttpPost]
+        public ActionResult Edit(PatientRecord patient)
+        {
+            DbSet<PatientRecord> allRecords = _context.PatientRecords;
+            allRecords.Update(patient);
+            _context.SaveChanges();
+            TempData["SuccessMessage"] = "Successfully modified " + patient.Fname + " " + patient.Lname + "'s information.";
+            return RedirectToAction("Index");
         }
 
         // Initializes given data for a new treatment record, but then sends to the view to get the rest to treat a patient.

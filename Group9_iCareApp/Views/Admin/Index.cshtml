@@ -30,7 +30,7 @@
                     <td>@worker.Profession</td>
                     <td>@_context.Locations.Find(user.locationID).Name</td>
                     <td>
-                        <a id="edit" href="@Url.Action("Update", "Admin", new {workerId = worker.Id})" title="Edit Worker">Edit Worker</a>
+                        <a id="edit" href="@Url.Action("Update", "Admin", new {workerId = worker.Id})" title="Edit Worker" class="btn btn-primary">Edit Worker</a>
                     </td>
                     <td>
                         <form asp-controller="Admin" asp-action="Delete" method="post">

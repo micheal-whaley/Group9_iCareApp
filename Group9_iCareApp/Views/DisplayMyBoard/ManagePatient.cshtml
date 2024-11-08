@@ -1,34 +1,35 @@
 ﻿@model Group9_iCareApp.Models.PatientRecord
 @{
     ViewBag.Title = "Patient Management";
-    var patient = (Group9_iCareApp.Models.PatientRecord)ViewData["Message"];
     List<SelectListItem> bloodGroups = (List<SelectListItem>)ViewData["bloodtypes"];
 }
 
-@if (patient != null)
+@if (Model != null)
 {
 
-    <h2>Update Record for @patient.Fname</h2>
+    <h2>Update Record for @Model.Fname</h2>
 
 
-    <form asp-action="Edit" asp-controller="ManagePatientRecord" asp-route-id="@patient.Id">
+    <form asp-action="Edit" asp-controller="DisplayMyBoard" method="post">
+        <input type="hidden" asp-for="Id" value ="@Model.Id" />
+        <input type="hidden" asp-for="LocationId" value="@Model.LocationId" />
         <label class="mt-4">First Name</label>
-        <input class="form-control mt-4" type="text" value="@patient.Fname" asp-for="Fname" />
+        <input class="form-control mt-4" type="text" value="@Model.Fname" asp-for="Fname" />
         <label class="mt-4">Last Name</label>
-        <input class="form-control mt-4" type="text" value="@patient.Lname" asp-for="Lname" />
+        <input class="form-control mt-4" type="text" value="@Model.Lname" asp-for="Lname" />
         <label class="mt-4">Address</label>
-        <input class="form-control mt-4" type="text" value="@patient.Address" asp-for="Address" />
+        <input class="form-control mt-4" type="text" value="@Model.Address" asp-for="Address" />
         <label class="mt-4">Date of Birth</label>
-        <input class="form-control mt-4" type="date" value="@patient.DateOfBirth?.ToString("yyyy-MM-dd")" asp-for="DateOfBirth" />
+        <input class="form-control mt-4" type="date" value="@Model.DateOfBirth?.ToString("yyyy-MM-dd")" asp-for="DateOfBirth" />
         <label class="mt-4">Height (Inches)</label>
-        <input class="form-control mt-4" type="number" value="@patient.Height" asp-for="Height" />
+        <input class="form-control mt-4" type="number" value="@Model.Height" asp-for="Height" />
         <label class="mt-4">Weight (Pounds)</label>
-        <input class="form-control mt-4" type="number" value="@patient.Weight" asp-for="Weight" />
+        <input class="form-control mt-4" type="number" value="@Model.Weight" asp-for="Weight" />
         <label class="mt-4" for="BloodGroup">Blood Type</label>
         <select asp-for="BloodGroup" class="form-select mt-4">
             @foreach (SelectListItem type in bloodGroups)
             {
-                if (type.Value == patient.BloodGroup)
+                if (type.Value == Model.BloodGroup)
                 {
                     <option value="@type.Value" selected>@type.Value</option>
                 }
@@ -38,14 +39,15 @@
                 }
 
             }
-            
+
         </select>
         <label class="mt-4">Bed ID</label>
-        <input class="form-control mt-4" type="text" value="@patient.BedId" asp-for="BedId" />
+        <input class="form-control mt-4" type="text" value="@Model.BedId" asp-for="BedId" />
         <label class="mt-4">Treatment Area</label>
-        <input class="form-control mt-4" type="text" value="@patient.TreatmentArea" asp-for="TreatmentArea" />
+        <input class="form-control mt-4" type="text" value="@Model.TreatmentArea" asp-for="TreatmentArea" />
 
         <button type="submit" class="btn btn-primary mt-4">Save</button>
+        <a asp-action="Index" class="btn btn-secondary mt-4">Cancel</a>
     </form>
 }
 else

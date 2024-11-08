@@ -6,6 +6,8 @@
 @{
     ViewData["Title"] = "My Patient Board";
     var filteredPatients = (List<Group9_iCareApp.Models.PatientRecord>)ViewData["patients"];
+    string error = (string)TempData["ErrorMessage"];
+    string success = (string)TempData["SuccessMessage"];
 }
 
 <h1>@ViewData["Title"]</h1>
@@ -58,6 +60,19 @@
             }
         </tbody>
     </table>
+    @if (@error != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @error
+        </div>
+    }
+
+    @if (@success != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @success
+        </div>
+    }
 }
 else
 {
